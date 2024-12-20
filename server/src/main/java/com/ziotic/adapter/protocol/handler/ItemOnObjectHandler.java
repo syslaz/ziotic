@@ -1,6 +1,25 @@
+/*
+ * Copyright (c) 2024 Lazaro Brito
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.ziotic.adapter.protocol.handler;
-
-import org.apache.log4j.Logger;
 
 import com.ziotic.Static;
 import com.ziotic.logic.item.PossesedItem;
@@ -14,33 +33,35 @@ import com.ziotic.logic.player.Player;
 import com.ziotic.network.Frame;
 import com.ziotic.network.handler.PlayerFrameHandler;
 import com.ziotic.utility.Logging;
+
+import org.apache.log4j.Logger;
 import org.apache.mina.core.session.IoSession;
 
 /**
  * @author Maxi
  */
 public class ItemOnObjectHandler extends PlayerFrameHandler {
-	
-	private final static Logger LOGGER = Logging.log();
-	
-	@Override
-	public void handleFrame(final Player player, IoSession session, Frame frame) {
-		final int y = frame.readShort();
-		final int x = frame.readLEShortA();
-		final int itemId = frame.readShort();
-		final boolean ctrl = frame.readC() == 1;
-		final int objId = frame.readShortA();
-		final int interfaceBitset = frame.readLEInt();
-		final int interfaceId = interfaceBitset >> 16;
-		@SuppressWarnings("unused")
-		final int interfaceChildId = interfaceBitset & 0xffff;
-		final int itemSlot = frame.readLEShort();
-		
+
+    private final static Logger LOGGER = Logging.log();
+
+    @Override
+    public void handleFrame(final Player player, IoSession session, Frame frame) {
+        final int y = frame.readShort();
+        final int x = frame.readLEShortA();
+        final int itemId = frame.readShort();
+        final boolean ctrl = frame.readC() == 1;
+        final int objId = frame.readShortA();
+        final int interfaceBitset = frame.readLEInt();
+        final int interfaceId = interfaceBitset >> 16;
+        @SuppressWarnings("unused")
+        final int interfaceChildId = interfaceBitset & 0xffff;
+        final int itemSlot = frame.readLEShort();
+
         if (player.getPathProcessor().getMoveSpeed() == PathProcessor.MOVE_SPEED_WALK) {
             return;
         }
         player.getCombat().stop(false);
-        
+
         Runnable r = new Runnable() {
             @Override
             public void run() {
@@ -48,22 +69,22 @@ public class ItemOnObjectHandler extends PlayerFrameHandler {
                 final GameObject obj = Region.getObject(loc);
                 final PossesedItem item = player.getInventory().get(itemSlot);
                 if (interfaceId != 149) {
-                	LOGGER.warn("ItemOnObject performed with an item from a different interface than the inventory.");
-                	return;
+                    LOGGER.warn("ItemOnObject performed with an item from a different interface than the inventory.");
+                    return;
                 }
                 if (item == null || itemId != item.getId()) {
-                	LOGGER.warn("ItemOnObject - Possible cheat client active item wise.");
-                	return;
+                    LOGGER.warn("ItemOnObject - Possible cheat client active item wise.");
+                    return;
                 }
                 if (obj == null || objId != obj.getId()) {
-                	LOGGER.warn("ItemOnObject - Possible cheat client active object wise.");
-                	return;
+                    LOGGER.warn("ItemOnObject - Possible cheat client active object wise.");
+                    return;
                 }
                 Runnable r2 = new Runnable() {
                     @Override
                     public void run() {
                         if (!Static.ahs.handleItemOnObject(player, item, itemSlot, obj)) {
-                        	LOGGER.info("Unhandled ItemOnObject [" + item.getId() + ", " + obj.getId() + "]");
+                            LOGGER.info("Unhandled ItemOnObject [" + item.getId() + ", " + obj.getId() + "]");
                         }
                     }
                 };
@@ -71,18 +92,18 @@ public class ItemOnObjectHandler extends PlayerFrameHandler {
                 player.getPathProcessor().setCoordinateFuture(cF);
                 player.getPathProcessor().updateCoordinateFuture();
                 if (player.getPathProcessor().getCoordinateFuture() != null) {
-                	if (!player.getCombat().isFrozen()) {
-	                    Static.world.submitPath(new AStarPathFinder(), player, x, y, obj, ctrl ? PathProcessor.MOVE_SPEED_RUN : PathProcessor.MOVE_SPEED_ANY, false, null);
-	                    player.getPathProcessor().setCoordinateFuture(cF);
-                	} else {
-                    	player.sendMessage("A magical force stops you from moving.");
-                		player.faceDirection(Tile.locate(x, y, player.getZ()));
-                	}
+                    if (!player.getCombat().isFrozen()) {
+                        Static.world.submitPath(new AStarPathFinder(), player, x, y, obj, ctrl ? PathProcessor.MOVE_SPEED_RUN : PathProcessor.MOVE_SPEED_ANY, false, null);
+                        player.getPathProcessor().setCoordinateFuture(cF);
+                    } else {
+                        player.sendMessage("A magical force stops you from moving.");
+                        player.faceDirection(Tile.locate(x, y, player.getZ()));
+                    }
                 } else {
-                	player.faceDirection(Tile.locate(x, y, player.getZ()));
+                    player.faceDirection(Tile.locate(x, y, player.getZ()));
                 }
             }
         };
         Static.engine.dispatchToMapWorker(r);
-	}
+    }
 }

@@ -1,5 +1,23 @@
-/**
+/*
+ * Copyright (c) 2024 Lazaro Brito
  *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 package com.ziotic.logic.map;
 
@@ -8,6 +26,7 @@ import com.ziotic.adapter.protocol.cache.format.MapLoaderAdapter;
 import com.ziotic.logic.object.GameObject;
 import com.ziotic.logic.object.ObjectDefinition;
 import com.ziotic.utility.Logging;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -51,9 +70,9 @@ public final class Region {
     public static GameObject getObject(Tile tile) {
         return forTile(tile).getObject(tile.getX() & 0x3f, tile.getY() & 0x3f, tile.getZ());
     }
-    
+
     public static GameObject getWallObject(Tile tile) {
-    	return forTile(tile).getWallObject(tile.getX() & 0x3f, tile.getY() & 0x3f, tile.getZ());
+        return forTile(tile).getWallObject(tile.getX() & 0x3f, tile.getY() & 0x3f, tile.getZ());
     }
 
     private int x;
@@ -78,7 +97,7 @@ public final class Region {
 
             if (Static.isGame()) {
                 try {
-					Region.MAP_LOADER.loadMap(this, x, y);
+                    Region.MAP_LOADER.loadMap(this, x, y);
                 } catch (Throwable e) {
                     //logger.error("Error loading map for region [x= " + x +", y=" + y + "]!", e);
                 }
@@ -171,17 +190,17 @@ public final class Region {
         if (objects[loc.getZ()] == null) {
             objects[loc.getZ()] = new GameObject[64][64];
         } else {
-            GameObject oldObj = objects[loc.getZ()][loc.getX() & 0x3f][loc.getY() & 0x3f];            
+            GameObject oldObj = objects[loc.getZ()][loc.getX() & 0x3f][loc.getY() & 0x3f];
             if (oldObj != null && obj != null && !obj.getDefinition().hasActions()) {
                 return;
             }
         }
-        
+
         objects[loc.getZ()][loc.getX() & 0x3f][loc.getY() & 0x3f] = obj;
     }
-    
+
     private void registerWallObject(GameObject obj) {
-    	Tile loc = obj.getLocation();
+        Tile loc = obj.getLocation();
 
         if (walls == null) {
             walls = new GameObject[4][][];
@@ -189,12 +208,12 @@ public final class Region {
         if (walls[loc.getZ()] == null) {
             walls[loc.getZ()] = new GameObject[64][64];
         } else {
-            GameObject oldObj = walls[loc.getZ()][loc.getX() & 0x3f][loc.getY() & 0x3f];            
+            GameObject oldObj = walls[loc.getZ()][loc.getX() & 0x3f][loc.getY() & 0x3f];
             if (oldObj != null && obj != null && !obj.getDefinition().hasActions()) {
                 return;
             }
         }
-        
+
         walls[loc.getZ()][loc.getX() & 0x3f][loc.getY() & 0x3f] = obj;
     }
 
@@ -207,9 +226,9 @@ public final class Region {
 
         objects[loc.getZ()][loc.getX() & 0x3f][loc.getY() & 0x3f] = null;
     }
-    
+
     private void unregisterWallObject(GameObject obj) {
-    	Tile loc = obj.getLocation();
+        Tile loc = obj.getLocation();
 
         if (walls == null || walls[loc.getZ()] == null) {
             return;
@@ -227,7 +246,7 @@ public final class Region {
 
         return objects[z][x][y];
     }
-    
+
     public GameObject getWallObject(int x, int y, int z) {
         load();
 
@@ -300,10 +319,10 @@ public final class Region {
 
     public void removeObject(int x, int y, int z) {
         load();
-        
+
         GameObject wall = getWallObject(x, y, z);
         if (wall != null) {
-        	unregisterWallObject(wall);
+            unregisterWallObject(wall);
         }
 
         GameObject oldObj = getObject(x, y, z);

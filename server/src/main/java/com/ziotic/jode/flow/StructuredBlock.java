@@ -1,23 +1,29 @@
-/* StructuredBlock Copyright (C) 1998-2002 Jochen Hoenicke.
+/*
+ * Copyright (c) 2024 Lazaro Brito
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
- * any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; see the file COPYING.LESSER.  If not, write to
- * the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
- *
- * $Id: StructuredBlock.java.in,v 4.3.2.2 2002/05/28 17:34:09 hoenicke Exp $
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
-
 package com.ziotic.jode.flow;
+
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Set;
 
 import com.ziotic.jode.AssertError;
 import com.ziotic.jode.GlobalOptions;
@@ -26,10 +32,6 @@ import com.ziotic.jode.decompiler.Declarable;
 import com.ziotic.jode.decompiler.LocalInfo;
 import com.ziotic.jode.decompiler.TabbedPrintWriter;
 import com.ziotic.jode.util.SimpleSet;
-
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Set;
 
 /**
  * A structured block is the building block of the source programm.
@@ -64,9 +66,9 @@ public abstract class StructuredBlock {
      * outer != null => flowBlock = outer.flowBlock
      * outer == null => flowBlock.block = this
      * jump  == null => outer != null
-     * either getNextBlock() != null 
+     * either getNextBlock() != null
      *     or getNextFlowBlock() != null or outer == null
-     * either outer.getNextBlock(this) != null 
+     * either outer.getNextBlock(this) != null
      *     or outer.getNextFlowBlock(this) != null
      */
 
@@ -386,7 +388,7 @@ public abstract class StructuredBlock {
         for (int i = 0; i < subs.length; i++) {
             Set childUse = subs[i].propagateUsage();
             /* All variables used in more than one sub blocks, are
-             * used in this block, too.  
+             * used in this block, too.
              */
             Set intersection = new SimpleSet();
             intersection.addAll(childUse);
@@ -663,4 +665,3 @@ public abstract class StructuredBlock {
         return false;
     }
 }
-

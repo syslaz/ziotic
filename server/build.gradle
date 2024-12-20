@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'application'
+    id 'com.diffplug.spotless' version '6.25.0'
 }
 
 dependencies {
@@ -16,4 +17,16 @@ dependencies {
 
 application {
     mainClass = 'com.ziotic.Launcher'
+}
+
+spotless {
+  java {
+    target 'src/main/java/**/*.java', 'src/main/test/**/*.java'
+    removeUnusedImports()
+    importOrder('java|javax', 'com.ziotic', '', '\\#com.ziotic', '\\#')
+    trimTrailingWhitespace()
+    indentWithSpaces(4)
+    formatAnnotations()
+    licenseHeaderFile('src/main/resources/LICENSE.txt')
+  }
 }

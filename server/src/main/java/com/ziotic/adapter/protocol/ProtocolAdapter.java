@@ -1,4 +1,28 @@
+/*
+ * Copyright (c) 2024 Lazaro Brito
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.ziotic.adapter.protocol;
+
+import java.util.Iterator;
+import java.util.Map;
 
 import com.ziotic.Constants;
 import com.ziotic.Static;
@@ -10,7 +34,6 @@ import com.ziotic.link.WorldServerSession;
 import com.ziotic.logic.Entity;
 import com.ziotic.logic.item.GroundItem;
 import com.ziotic.logic.item.PossesedItem;
-import com.ziotic.logic.map.Region;
 import com.ziotic.logic.map.Tile;
 import com.ziotic.logic.mask.Chat;
 import com.ziotic.logic.object.GameObject;
@@ -26,12 +49,10 @@ import com.ziotic.network.FrameBuilder;
 import com.ziotic.network.Protocol;
 import com.ziotic.utility.Logging;
 import com.ziotic.utility.Text;
+
 import org.apache.log4j.Logger;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.session.IoSession;
-
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * @author Lazaro
@@ -311,9 +332,9 @@ public final class ProtocolAdapter implements Protocol {
                 }
                 /*final int actualX = (xCalc << 3) << 3, actualY = (yCalc << 3) << 3;
                 Static.engine.dispatchToMapWorker(new Runnable() {
-                	public void run() {
-                		Region.forAbsoluteCoordinates(actualX, actualY).load();
-                	}
+                    public void run() {
+                        Region.forAbsoluteCoordinates(actualX, actualY).load();
+                    }
                 });*/
             }
         }

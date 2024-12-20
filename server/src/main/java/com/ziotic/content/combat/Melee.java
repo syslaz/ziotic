@@ -1,3 +1,24 @@
+/*
+ * Copyright (c) 2024 Lazaro Brito
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.ziotic.content.combat;
 
 import java.util.Random;
@@ -30,130 +51,130 @@ public class Melee {
         int hp = victim.getHP();
         int totalDamage = 0;
         if (entity instanceof Player) {
-	        for (int i = 0; i < (special ? amountOfHits : 1); i++) {
-	            double maxHit = getMaxMeleeHit(entity, special, strengthMultiplier);
-	            double hitChance = 0;
-	            SplatType damageSplat = SplatType.DAMAGE;
-	            SplatType absorbSplat = null;
-	            if (victim instanceof Player) {
-	                Player player = (Player) entity;
-	                Player victim_ = (Player) victim;
-	                hitChance = Combat.getAccuracy(entity, victim, accuracyMultiplier);
-	                if (hitChance <= RANDOM.nextDouble()) {
-	                    maxHit = 0;
-	                    damageSplat = SplatType.BLOCK;
-	                } else {
-	                    if ((victim_.getPrayerManager().protectMelee() || victim_.getPrayerManager().deflectMelee()) && !CombatUtilities.wearsArmourSet(player, CombatUtilities.VERACS))
-	                        maxHit *= 0.6;
-	                }
-	                double hitMultiplier = Combat.getHitMultiplier(hitChance);
-	                int damage = maxHit > 0 ? (damages == null ? ((int) (maxHit * hitMultiplier)) : damages[i]) : 0;
-	                if (damage > maxHit)
-	                	damage = (int) maxHit;
-	                int damageExcess = 0;
-	                double absorbAmount = 0;
-	                if (damage > 200) {
-	                    damageExcess = damage - 200;
-	                }
-	                absorbAmount = damageExcess * (victim_.getBonuses()[Bonuses.ABSORB_MELEE] / 100);
-	                if (absorbAmount > 0) {
-	                    absorbSplat = SplatType.SOAK;
-	                    absorbAmount = Math.ceil(absorbAmount);
-	                    damage -= absorbAmount;
-	                }
-	                boolean dead = false;
-	                if (damage < 1 && maxHit != 0)
-	                    damage = 1;
-	                if (damage > hp) {
-	                    damage = hp;
-	                    dead = true;
-	                }
-	                if (dead) {
-	                    damage += absorbAmount;
-	                    if (damage > hp)
-	                        damage = hp;
-	                }
-	                hp -= damage;
-	                if (damage == 0) {
-	                    damageSplat = SplatType.BLOCK;
-	                }
-	                SplatNode node;
-	                final int damage_ = damage;
-	                final boolean criticalHit = damage + (0.03 * damage) >= maxHit - absorbAmount;
-	                int delay = delays[i];
-	                if (absorbSplat != null) {
-	                    node = new SplatNode(new Splat(victim, entity, damage_, damageSplat, SplatCause.MELEE, criticalHit, 0), new Splat(victim, entity, (int) absorbAmount, absorbSplat, SplatCause.NONE, false, 0));
-	                } else
-	                    node = new SplatNode(new Splat(victim, entity, damage_, damageSplat, SplatCause.MELEE, criticalHit, 0));
-	                victim.registerHPTick(new HPRemoval(victim, damage_, 1/*Combat.getHPDrainDelay(delays[i])*/, node));
-	                totalDamage += damage_;
-	                player.getPrayerManager().dealHit(player, victim_, damage_, WeaponStyles.MELEE, delay, 0);
-	                victim_.getPrayerManager().takeHit(victim_, player, damage_, WeaponStyles.MELEE, delay, 0);
-	            } else {
-	            	Player player = (Player) entity;
-	            	NPC victim_ = (NPC) victim;
-	                hitChance = Combat.getAccuracy(entity, victim, accuracyMultiplier);
-	                if (hitChance <= RANDOM.nextDouble()) {
-	                    maxHit = 0;
-	                    damageSplat = SplatType.BLOCK;
-	                } else {
+            for (int i = 0; i < (special ? amountOfHits : 1); i++) {
+                double maxHit = getMaxMeleeHit(entity, special, strengthMultiplier);
+                double hitChance = 0;
+                SplatType damageSplat = SplatType.DAMAGE;
+                SplatType absorbSplat = null;
+                if (victim instanceof Player) {
+                    Player player = (Player) entity;
+                    Player victim_ = (Player) victim;
+                    hitChance = Combat.getAccuracy(entity, victim, accuracyMultiplier);
+                    if (hitChance <= RANDOM.nextDouble()) {
+                        maxHit = 0;
+                        damageSplat = SplatType.BLOCK;
+                    } else {
+                        if ((victim_.getPrayerManager().protectMelee() || victim_.getPrayerManager().deflectMelee()) && !CombatUtilities.wearsArmourSet(player, CombatUtilities.VERACS))
+                            maxHit *= 0.6;
+                    }
+                    double hitMultiplier = Combat.getHitMultiplier(hitChance);
+                    int damage = maxHit > 0 ? (damages == null ? ((int) (maxHit * hitMultiplier)) : damages[i]) : 0;
+                    if (damage > maxHit)
+                        damage = (int) maxHit;
+                    int damageExcess = 0;
+                    double absorbAmount = 0;
+                    if (damage > 200) {
+                        damageExcess = damage - 200;
+                    }
+                    absorbAmount = damageExcess * (victim_.getBonuses()[Bonuses.ABSORB_MELEE] / 100);
+                    if (absorbAmount > 0) {
+                        absorbSplat = SplatType.SOAK;
+                        absorbAmount = Math.ceil(absorbAmount);
+                        damage -= absorbAmount;
+                    }
+                    boolean dead = false;
+                    if (damage < 1 && maxHit != 0)
+                        damage = 1;
+                    if (damage > hp) {
+                        damage = hp;
+                        dead = true;
+                    }
+                    if (dead) {
+                        damage += absorbAmount;
+                        if (damage > hp)
+                            damage = hp;
+                    }
+                    hp -= damage;
+                    if (damage == 0) {
+                        damageSplat = SplatType.BLOCK;
+                    }
+                    SplatNode node;
+                    final int damage_ = damage;
+                    final boolean criticalHit = damage + (0.03 * damage) >= maxHit - absorbAmount;
+                    int delay = delays[i];
+                    if (absorbSplat != null) {
+                        node = new SplatNode(new Splat(victim, entity, damage_, damageSplat, SplatCause.MELEE, criticalHit, 0), new Splat(victim, entity, (int) absorbAmount, absorbSplat, SplatCause.NONE, false, 0));
+                    } else
+                        node = new SplatNode(new Splat(victim, entity, damage_, damageSplat, SplatCause.MELEE, criticalHit, 0));
+                    victim.registerHPTick(new HPRemoval(victim, damage_, 1/*Combat.getHPDrainDelay(delays[i])*/, node));
+                    totalDamage += damage_;
+                    player.getPrayerManager().dealHit(player, victim_, damage_, WeaponStyles.MELEE, delay, 0);
+                    victim_.getPrayerManager().takeHit(victim_, player, damage_, WeaponStyles.MELEE, delay, 0);
+                } else {
+                    Player player = (Player) entity;
+                    NPC victim_ = (NPC) victim;
+                    hitChance = Combat.getAccuracy(entity, victim, accuracyMultiplier);
+                    if (hitChance <= RANDOM.nextDouble()) {
+                        maxHit = 0;
+                        damageSplat = SplatType.BLOCK;
+                    } else {
 //	                    if ((victim_.getPrayerManager().protectMelee() || victim_.getPrayerManager().deflectMelee()) && !CombatUtilities.wearsArmourSet(player, CombatUtilities.VERACS))
 //	                        maxHit *= 0.6; TODO prayers for npc's
-	                }
-	                double hitMultiplier = Combat.getHitMultiplier(hitChance);
-	                int damage = maxHit > 0 ? (damages == null ? ((int) (maxHit * hitMultiplier)) : damages[i]) : 0;
-	                if (damage > maxHit)
-	                	damage = (int) maxHit;
-	                int damageExcess = 0;
-	                double absorbAmount = 0;
-	                if (damage > 200) {
-	                    damageExcess = damage - 200;
-	                }
-	                absorbAmount = damageExcess * (victim_.getBonuses()[Bonuses.ABSORB_MELEE] / 100);
-	                if (absorbAmount > 0) {
-	                    absorbSplat = SplatType.SOAK;
-	                    absorbAmount = Math.ceil(absorbAmount);
-	                    damage -= absorbAmount;
-	                }
-	                boolean dead = false;
-	                if (damage < 1 && maxHit != 0)
-	                    damage = 1;
-	                if (damage > hp) {
-	                    damage = hp;
-	                    dead = true;
-	                }
-	                if (dead) {
-	                    damage += absorbAmount;
-	                    if (damage > hp)
-	                        damage = hp;
-	                }
-	                hp -= damage;
-	                if (damage == 0) {
-	                    damageSplat = SplatType.BLOCK;
-	                }
-	                SplatNode node;
-	                final int damage_ = damage;
-	                final boolean criticalHit = damage + (0.03 * damage) >= maxHit - absorbAmount;
-	                int delay = delays[i];
-	                if (absorbSplat != null) {
-	                    node = new SplatNode(new Splat(victim, entity, damage_, damageSplat, SplatCause.MELEE, criticalHit, 0), new Splat(victim, entity, (int) absorbAmount, absorbSplat, SplatCause.NONE, false, 0));
-	                } else
-	                    node = new SplatNode(new Splat(victim, entity, damage_, damageSplat, SplatCause.MELEE, criticalHit, 0));
-	                victim.registerHPTick(new HPRemoval(victim, damage_, 1/*Combat.getHPDrainDelay(delays[i])*/, node));
-	                totalDamage += damage_;
-	                player.getPrayerManager().dealHit(player, victim_, damage_, WeaponStyles.MELEE, delay, 0);
-	//                victim_.getPrayerManager().takeHit(victim_, player, damage_, WeaponStyles.MELEE, delay, 0); // TODO prayer stuff for npc's
-	            }
-	        }
+                    }
+                    double hitMultiplier = Combat.getHitMultiplier(hitChance);
+                    int damage = maxHit > 0 ? (damages == null ? ((int) (maxHit * hitMultiplier)) : damages[i]) : 0;
+                    if (damage > maxHit)
+                        damage = (int) maxHit;
+                    int damageExcess = 0;
+                    double absorbAmount = 0;
+                    if (damage > 200) {
+                        damageExcess = damage - 200;
+                    }
+                    absorbAmount = damageExcess * (victim_.getBonuses()[Bonuses.ABSORB_MELEE] / 100);
+                    if (absorbAmount > 0) {
+                        absorbSplat = SplatType.SOAK;
+                        absorbAmount = Math.ceil(absorbAmount);
+                        damage -= absorbAmount;
+                    }
+                    boolean dead = false;
+                    if (damage < 1 && maxHit != 0)
+                        damage = 1;
+                    if (damage > hp) {
+                        damage = hp;
+                        dead = true;
+                    }
+                    if (dead) {
+                        damage += absorbAmount;
+                        if (damage > hp)
+                            damage = hp;
+                    }
+                    hp -= damage;
+                    if (damage == 0) {
+                        damageSplat = SplatType.BLOCK;
+                    }
+                    SplatNode node;
+                    final int damage_ = damage;
+                    final boolean criticalHit = damage + (0.03 * damage) >= maxHit - absorbAmount;
+                    int delay = delays[i];
+                    if (absorbSplat != null) {
+                        node = new SplatNode(new Splat(victim, entity, damage_, damageSplat, SplatCause.MELEE, criticalHit, 0), new Splat(victim, entity, (int) absorbAmount, absorbSplat, SplatCause.NONE, false, 0));
+                    } else
+                        node = new SplatNode(new Splat(victim, entity, damage_, damageSplat, SplatCause.MELEE, criticalHit, 0));
+                    victim.registerHPTick(new HPRemoval(victim, damage_, 1/*Combat.getHPDrainDelay(delays[i])*/, node));
+                    totalDamage += damage_;
+                    player.getPrayerManager().dealHit(player, victim_, damage_, WeaponStyles.MELEE, delay, 0);
+    //                victim_.getPrayerManager().takeHit(victim_, player, damage_, WeaponStyles.MELEE, delay, 0); // TODO prayer stuff for npc's
+                }
+            }
         } else {
-        	NPC npc = (NPC) entity;
-        	double maxHit = npc.getDefinition().meleeMaxHit;
-        	maxHit *= strengthMultiplier;
-        	double hitChance = Combat.getAccuracy(npc, victim, accuracyMultiplier);
-        	SplatType damageSplat = SplatType.DAMAGE;
+            NPC npc = (NPC) entity;
+            double maxHit = npc.getDefinition().meleeMaxHit;
+            maxHit *= strengthMultiplier;
+            double hitChance = Combat.getAccuracy(npc, victim, accuracyMultiplier);
+            SplatType damageSplat = SplatType.DAMAGE;
             SplatType absorbSplat = null;
             boolean victimIsPlayer = victim instanceof Player;
-        	if (hitChance <= RANDOM.nextDouble()) {
+            if (hitChance <= RANDOM.nextDouble()) {
                 maxHit = 0;
                 damageSplat = SplatType.BLOCK;
             } else if (victimIsPlayer) {
@@ -163,7 +184,7 @@ public class Melee {
             double hitMultiplier = Combat.getHitMultiplier(hitChance);
             int damage = maxHit > 0 ? (damages == null ? ((int) (maxHit * hitMultiplier)) : damages[0]) : 0;
             if (damage > maxHit)
-            	damage = (int) maxHit;
+                damage = (int) maxHit;
             int damageExcess = 0;
             double absorbAmount = 0;
             if (damage > 200) {
@@ -202,7 +223,7 @@ public class Melee {
             victim.registerHPTick(new HPRemoval(victim, damage_, 1/*Combat.getHPDrainDelay(delays[i])*/, node));
             totalDamage += damage_;
             if (victimIsPlayer)
-            	((Player) victim).getPrayerManager().takeHit(victim, entity, damage_, WeaponStyles.MELEE, delay, 0);
+                ((Player) victim).getPrayerManager().takeHit(victim, entity, damage_, WeaponStyles.MELEE, delay, 0);
         }
         return totalDamage;
     }

@@ -1,31 +1,23 @@
-/***
- * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2007 INRIA, France Telecom
- * All rights reserved.
+/*
+ * Copyright (c) 2024 Lazaro Brito
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the copyright holders nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
- * THE POSSIBILITY OF SUCH DAMAGE.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 package com.ziotic.asm;
 
@@ -46,14 +38,14 @@ final class Frame {
      * of the first basic block (which is computed from the method descriptor),
      * and by using the previously computed output frames to compute the input
      * state of the other blocks.
-     * 
+     *
      * All output and input frames are stored as arrays of integers. Reference
      * and array types are represented by an index into a type table (which is
      * not the same as the constant pool of the class, in order to avoid adding
      * unnecessary constants in the pool - not all computed frames will end up
      * being stored in the stack map table). This allows very fast type
      * comparisons.
-     * 
+     *
      * Output stack map frames are computed relatively to the input frame of the
      * basic block, which is not yet known when output frames are computed. It
      * is therefore necessary to be able to represent abstract types such as
@@ -61,7 +53,7 @@ final class Frame {
      * position x from the top of the input frame stack" or even "the type at
      * position x in the input frame, with y more (or less) array dimensions".
      * This explains the rather complicated type format used in output frames.
-     * 
+     *
      * This format is the following: DIM KIND VALUE (4, 4 and 24 bits). DIM is a
      * signed number of array dimensions (from -8 to 7). KIND is either BASE,
      * LOCAL or STACK. BASE is used for types that are not relative to the input
@@ -72,14 +64,14 @@ final class Frame {
      * relatively to the top of input frame stack. For BASE types, it is either
      * one of the constants defined in FrameVisitor, or for OBJECT and
      * UNINITIALIZED types, a tag and an index in the type table.
-     * 
+     *
      * Output frames can contain types of any kind and with a positive or
      * negative dimension (and even unassigned types, represented by 0 - which
      * does not correspond to any valid type value). Input frames can only
      * contain BASE types of positive or null dimension. In all cases the type
      * table contains only internal type names (array type descriptors are
      * forbidden - dimensions must be represented through the DIM field).
-     * 
+     *
      * The LONG and DOUBLE types are always represented by using two slots (LONG +
      * TOP or DOUBLE + TOP), for local variable types as well as in the operand
      * stack. This is necessary to be able to simulate DUPx_y instructions,

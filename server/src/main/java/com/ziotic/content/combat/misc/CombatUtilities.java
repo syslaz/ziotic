@@ -1,10 +1,29 @@
+/*
+ * Copyright (c) 2024 Lazaro Brito
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.ziotic.content.combat.misc;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-
-import org.apache.log4j.Logger;
 
 import com.ziotic.Constants.Equipment;
 import com.ziotic.Static;
@@ -22,11 +41,13 @@ import com.ziotic.logic.object.GameObject;
 import com.ziotic.logic.player.Player;
 import com.ziotic.utility.Logging;
 
+import org.apache.log4j.Logger;
+
 public class CombatUtilities {
 
     private static final Random RANDOM = new Random();
-	@SuppressWarnings("unused")
-	private static final Logger LOGGER = Logging.log();
+    @SuppressWarnings("unused")
+    private static final Logger LOGGER = Logging.log();
 
     private static final String[][] KILL_MESSAGES = new String[][]{
             {"You were clearly a better fighter than ", " ."},
@@ -46,27 +67,27 @@ public class CombatUtilities {
     }
 
     public static boolean moveToCorrectPosition(Entity entity, Entity partner, ActionType type, boolean combat, boolean npcCheck) {
-    	try {
+        try {
         entity.faceEntity(partner);
         Tile loc = entity.getLocation();
         int dx = loc.getX() - partner.getLocation().getX();
         int dy = loc.getY() - partner.getLocation().getY(); //eCenter.getY() - pCenter.getY();
-        int distance = entity.getCoverage().center().distance(partner.getCoverage().center()); 
+        int distance = entity.getCoverage().center().distance(partner.getCoverage().center());
         boolean succes = false;
         int x = entity.getLocation().getX();
         int y = entity.getLocation().getY();
         int counter;
         if (entity instanceof Player) {
-        	Player player = (Player) entity;
-        	if (partner instanceof Player)
-            	counter = player.isRunning() ? ((Player) partner).isRunning() ? 2 : 1 : 1;
-            else 
-            	counter = player.isRunning() ? 2 : 1; 
+            Player player = (Player) entity;
+            if (partner instanceof Player)
+                counter = player.isRunning() ? ((Player) partner).isRunning() ? 2 : 1 : 1;
+            else
+                counter = player.isRunning() ? 2 : 1;
         } else {
-        	counter = 2;
+            counter = 2;
         }
         for (int i = 0; i < counter; i++) {
-        	succes = false;
+            succes = false;
             loc = Tile.locate(x, y, entity.getZ());
             NextNode next = getNextNode(loc, dx, dy, distance, true, entity, partner, type, npcCheck);
             if (next == null) {
@@ -77,14 +98,14 @@ public class CombatUtilities {
             }
             if (next.canMove) {
                 if (partner.getCoverage().within(next.tile)) {
-                	succes = true;
-                	continue;
+                    succes = true;
+                    continue;
                 }
                 x = next.tile.getX();
                 y = next.tile.getY();
-                dx = x - partner.getLocation().getX(); 
-                dy = y - partner.getLocation().getY(); 
-            	succes = true;
+                dx = x - partner.getLocation().getX();
+                dy = y - partner.getLocation().getY();
+                succes = true;
                 entity.updateCoverage(next.tile);
                 entity.getPathProcessor().add(next.tile);
             } else {
@@ -93,478 +114,478 @@ public class CombatUtilities {
             }
         }
         return succes;
-    	} catch (Exception e) {
-    		e.printStackTrace();
-    		return false;
-    	}
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     protected static NextNode getNextNode(Tile loc, int dx, int dy, int distance, boolean combat, Entity entity, Entity partner, ActionType type, boolean npcCheck) {
         NormalDirection direction = null;
         if (combat) {
-        	if (entity.getCoverage().correctCombatPosition(entity, partner, partner.getCoverage(), type, getAttackDistance(entity, type))) {
-        		return null;
-        	}
+            if (entity.getCoverage().correctCombatPosition(entity, partner, partner.getCoverage(), type, getAttackDistance(entity, type))) {
+                return null;
+            }
         } else {
-        	if (entity.getCoverage().correctFinalFollowPosition(partner.getCoverage())) {
-        		return null;
-        	}
+            if (entity.getCoverage().correctFinalFollowPosition(partner.getCoverage())) {
+                return null;
+            }
         }
         if (entity.getSize() > 1) {
-    		Tile eCenter = entity.getCoverage().center();
-    		Tile pCenter = partner.getCoverage().center();
-        	if (entity.getCoverage().intersect(partner.getCoverage())) {
-        		if (eCenter == pCenter) {
-        			if (loc.canMove(NormalDirection.SOUTH_WEST, entity.getSize(), npcCheck)) {
-    					direction = NormalDirection.SOUTH_WEST;
-    				} else if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
-    					direction = NormalDirection.WEST;
-    				} else if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
-    					direction = NormalDirection.SOUTH;
-    				} else if (loc.canMove(NormalDirection.NORTH_WEST, entity.getSize(), npcCheck)) {
-    					direction = NormalDirection.NORTH_WEST;
-    				} else if (loc.canMove(NormalDirection.NORTH_EAST, entity.getSize(), npcCheck)) {
-    					direction = NormalDirection.NORTH_EAST;
-    				} else if (loc.canMove(NormalDirection.SOUTH_EAST, entity.getSize(), npcCheck)) {
-    					direction = NormalDirection.SOUTH_EAST;
-    				} else if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
-    					direction = NormalDirection.EAST;
-    				} else if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
-    					direction = NormalDirection.NORTH;
-    				} 
-        		} else if (eCenter.right(pCenter)) {
-        			if (eCenter.above(pCenter)) {
-        				if (loc.canMove(NormalDirection.NORTH_EAST, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.NORTH_EAST;
-        				} else if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.EAST;
-        				} else if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.NORTH;
-        				}
-        			} else if (pCenter.under(pCenter)) {
-        				if (loc.canMove(NormalDirection.SOUTH_EAST, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.SOUTH_EAST;
-        				} else if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.EAST;
-        				} else if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.SOUTH;
-        				}
-        			} else {
-        				if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.EAST;
-        				} else if (loc.canMove(NormalDirection.NORTH_EAST, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.NORTH_EAST;
-        				} else if (loc.canMove(NormalDirection.SOUTH_EAST, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.SOUTH_EAST;
-        				} else if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.NORTH;
-        				} else if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.SOUTH;
-        				}
-        			}
-        		} else if (eCenter.left(pCenter)) {
-        			if (eCenter.above(pCenter)) {
-        				if (loc.canMove(NormalDirection.NORTH_WEST, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.NORTH_WEST;
-        				} else if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.WEST;
-        				} else if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.NORTH;
-        				}
-        			} else if (pCenter.under(pCenter)) {
-        				if (loc.canMove(NormalDirection.SOUTH_WEST, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.SOUTH_WEST;
-        				} else if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.WEST;
-        				} else if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.SOUTH;
-        				}
-        			} else {
-        				if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.WEST;
-        				} else if (loc.canMove(NormalDirection.NORTH_WEST, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.NORTH_WEST;
-        				} else if (loc.canMove(NormalDirection.SOUTH_WEST, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.SOUTH_WEST;
-        				} else if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.NORTH;
-        				} else if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.SOUTH;
-        				}
-        			}
-        		} else {
-        			if (eCenter.above(pCenter)) {
-        				if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.NORTH;
-        				} else if (loc.canMove(NormalDirection.NORTH_EAST, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.NORTH_EAST;
-        				} else if (loc.canMove(NormalDirection.NORTH_WEST, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.NORTH_WEST;
-        				} else if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.EAST;
-        				} else if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.WEST;
-        				}
-        			} else if (eCenter.under(pCenter)) {
-        				if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.SOUTH;
-        				} else if (loc.canMove(NormalDirection.SOUTH_EAST, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.SOUTH_EAST;
-        				} else if (loc.canMove(NormalDirection.SOUTH_WEST, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.SOUTH_WEST;
-        				} else if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.EAST;
-        				} else if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.WEST;
-        				}
-        			}
-        		}
-        	} else {
-        		Coverage eC = entity.getCoverage();
-        		Coverage pC = partner.getCoverage();
-        		int absDX = Math.abs(dx);
-        		int absDY = Math.abs(dy);
-        		if (eC.right(pC)) {
-        			if (eC.above(pC)) {
-        				if (loc.canMove(NormalDirection.SOUTH_WEST, entity.getSize(), npcCheck)) {
-        					if (absDY <= 1 && absDY >= 0) {
-        						if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.WEST;
-        						}
-        					} else if (absDX <= 1 && absDX >= 0) {
-        						if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.SOUTH;
-        						}
-        					} else {
-        						direction = NormalDirection.SOUTH_WEST;
-        					}
-        				} else {
-        					if (dx > dy) {
-        						if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.WEST;
-        						} else if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.SOUTH;
-        						}
-        					} else if (dx < dy) {
-        						if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.SOUTH;
-        						} else if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.WEST;
-        						}
-        					} else {
-        						if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.SOUTH;
-        						} else if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.WEST;
-        						}
-        					}
-        				}
-        			} else if (eC.under(pC)) {
-        				if (loc.canMove(NormalDirection.NORTH_WEST, entity.getSize(), npcCheck)) {
-        					if (absDY <= 1 && absDY >= 0) {
-        						if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.WEST;
-        						}
-        					} else if (absDX <= 1 && absDX >= 0) {
-        						if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.NORTH;
-        						}
-        					} else {
-        						direction = NormalDirection.NORTH_WEST;
-        					}
-        				} else {
-        					if (dx > -dy) {
-        						if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.WEST;
-        						} else if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.NORTH;
-        						}
-        					} else if (dx < -dy) {
-        						if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.NORTH;
-        						} else if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.WEST;
-        						}
-        					} else {
-        						if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.NORTH;
-        						} else if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.WEST;
-        						}
-        					}
-        				}
-        			} else {
-        				if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.WEST;
-        				}
-        			}
-        		} else if (eC.left(pC)) {
-        			if (eC.above(pC)) {
-        				if (loc.canMove(NormalDirection.SOUTH_EAST, entity.getSize(), npcCheck)) {
-        					if (absDY <= 1 && absDY >= 0) {
-        						if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.EAST;
-        						}
-        					} else if (absDX <= 1 && absDX >= 0) {
-        						if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.SOUTH;
-        						}
-        					} else {
-        						direction = NormalDirection.SOUTH_EAST;
-        					}
-        				} else {
-        					if (-dx > dy) {
-        						if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.EAST;
-        						} else if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.SOUTH;
-        						}
-        					} else if (-dx < dy) {
-        						if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.SOUTH;
-        						} else if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.EAST;
-        						}
-        					} else {
-        						if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.SOUTH;
-        						} else if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.EAST;
-        						}
-        					}
-        				}
-        			} else if (eC.under(pC)) {
-        				if (loc.canMove(NormalDirection.NORTH_EAST, entity.getSize(), npcCheck)) {
-        					if (absDY <= 1 && absDY >= 0) {
-        						if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.EAST;
-        						}
-        					} else if (absDX <= 1 && absDX >= 0) {
-        						if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.NORTH;
-        						}
-        					} else {
-        						direction = NormalDirection.NORTH_EAST;
-        					}
-        				} else {
-        					if (-dx > -dy) {
-        						if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.EAST;
-        						} else if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.NORTH;
-        						}
-        					} else if (-dx < -dy) {
-        						if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.NORTH;
-        						} else if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.EAST;
-        						}
-        					} else {
-        						if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.NORTH;
-        						} else if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
-                					direction = NormalDirection.EAST;
-        						}
-        					}
-        				}
-        			} else {
-        				if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.EAST;
-        				}
-        			}
-        		} else {
-        			if (eC.above(pC)) {
-        				if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.SOUTH;
-        				}
-        			} else if (eC.under(pC)) {
-        				if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
-        					direction = NormalDirection.NORTH;
-        				}
-        			}
-        		}
-        	}
-        	if (direction == null) {
-        		return null;
-        	}
-        	return new NextNode(loc, direction, loc.canMove(direction, entity.getSize(), npcCheck));
+            Tile eCenter = entity.getCoverage().center();
+            Tile pCenter = partner.getCoverage().center();
+            if (entity.getCoverage().intersect(partner.getCoverage())) {
+                if (eCenter == pCenter) {
+                    if (loc.canMove(NormalDirection.SOUTH_WEST, entity.getSize(), npcCheck)) {
+                        direction = NormalDirection.SOUTH_WEST;
+                    } else if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
+                        direction = NormalDirection.WEST;
+                    } else if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
+                        direction = NormalDirection.SOUTH;
+                    } else if (loc.canMove(NormalDirection.NORTH_WEST, entity.getSize(), npcCheck)) {
+                        direction = NormalDirection.NORTH_WEST;
+                    } else if (loc.canMove(NormalDirection.NORTH_EAST, entity.getSize(), npcCheck)) {
+                        direction = NormalDirection.NORTH_EAST;
+                    } else if (loc.canMove(NormalDirection.SOUTH_EAST, entity.getSize(), npcCheck)) {
+                        direction = NormalDirection.SOUTH_EAST;
+                    } else if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
+                        direction = NormalDirection.EAST;
+                    } else if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
+                        direction = NormalDirection.NORTH;
+                    }
+                } else if (eCenter.right(pCenter)) {
+                    if (eCenter.above(pCenter)) {
+                        if (loc.canMove(NormalDirection.NORTH_EAST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.NORTH_EAST;
+                        } else if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.EAST;
+                        } else if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.NORTH;
+                        }
+                    } else if (pCenter.under(pCenter)) {
+                        if (loc.canMove(NormalDirection.SOUTH_EAST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.SOUTH_EAST;
+                        } else if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.EAST;
+                        } else if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.SOUTH;
+                        }
+                    } else {
+                        if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.EAST;
+                        } else if (loc.canMove(NormalDirection.NORTH_EAST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.NORTH_EAST;
+                        } else if (loc.canMove(NormalDirection.SOUTH_EAST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.SOUTH_EAST;
+                        } else if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.NORTH;
+                        } else if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.SOUTH;
+                        }
+                    }
+                } else if (eCenter.left(pCenter)) {
+                    if (eCenter.above(pCenter)) {
+                        if (loc.canMove(NormalDirection.NORTH_WEST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.NORTH_WEST;
+                        } else if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.WEST;
+                        } else if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.NORTH;
+                        }
+                    } else if (pCenter.under(pCenter)) {
+                        if (loc.canMove(NormalDirection.SOUTH_WEST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.SOUTH_WEST;
+                        } else if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.WEST;
+                        } else if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.SOUTH;
+                        }
+                    } else {
+                        if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.WEST;
+                        } else if (loc.canMove(NormalDirection.NORTH_WEST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.NORTH_WEST;
+                        } else if (loc.canMove(NormalDirection.SOUTH_WEST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.SOUTH_WEST;
+                        } else if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.NORTH;
+                        } else if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.SOUTH;
+                        }
+                    }
+                } else {
+                    if (eCenter.above(pCenter)) {
+                        if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.NORTH;
+                        } else if (loc.canMove(NormalDirection.NORTH_EAST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.NORTH_EAST;
+                        } else if (loc.canMove(NormalDirection.NORTH_WEST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.NORTH_WEST;
+                        } else if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.EAST;
+                        } else if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.WEST;
+                        }
+                    } else if (eCenter.under(pCenter)) {
+                        if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.SOUTH;
+                        } else if (loc.canMove(NormalDirection.SOUTH_EAST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.SOUTH_EAST;
+                        } else if (loc.canMove(NormalDirection.SOUTH_WEST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.SOUTH_WEST;
+                        } else if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.EAST;
+                        } else if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.WEST;
+                        }
+                    }
+                }
+            } else {
+                Coverage eC = entity.getCoverage();
+                Coverage pC = partner.getCoverage();
+                int absDX = Math.abs(dx);
+                int absDY = Math.abs(dy);
+                if (eC.right(pC)) {
+                    if (eC.above(pC)) {
+                        if (loc.canMove(NormalDirection.SOUTH_WEST, entity.getSize(), npcCheck)) {
+                            if (absDY <= 1 && absDY >= 0) {
+                                if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.WEST;
+                                }
+                            } else if (absDX <= 1 && absDX >= 0) {
+                                if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.SOUTH;
+                                }
+                            } else {
+                                direction = NormalDirection.SOUTH_WEST;
+                            }
+                        } else {
+                            if (dx > dy) {
+                                if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.WEST;
+                                } else if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.SOUTH;
+                                }
+                            } else if (dx < dy) {
+                                if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.SOUTH;
+                                } else if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.WEST;
+                                }
+                            } else {
+                                if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.SOUTH;
+                                } else if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.WEST;
+                                }
+                            }
+                        }
+                    } else if (eC.under(pC)) {
+                        if (loc.canMove(NormalDirection.NORTH_WEST, entity.getSize(), npcCheck)) {
+                            if (absDY <= 1 && absDY >= 0) {
+                                if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.WEST;
+                                }
+                            } else if (absDX <= 1 && absDX >= 0) {
+                                if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.NORTH;
+                                }
+                            } else {
+                                direction = NormalDirection.NORTH_WEST;
+                            }
+                        } else {
+                            if (dx > -dy) {
+                                if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.WEST;
+                                } else if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.NORTH;
+                                }
+                            } else if (dx < -dy) {
+                                if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.NORTH;
+                                } else if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.WEST;
+                                }
+                            } else {
+                                if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.NORTH;
+                                } else if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.WEST;
+                                }
+                            }
+                        }
+                    } else {
+                        if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.WEST;
+                        }
+                    }
+                } else if (eC.left(pC)) {
+                    if (eC.above(pC)) {
+                        if (loc.canMove(NormalDirection.SOUTH_EAST, entity.getSize(), npcCheck)) {
+                            if (absDY <= 1 && absDY >= 0) {
+                                if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.EAST;
+                                }
+                            } else if (absDX <= 1 && absDX >= 0) {
+                                if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.SOUTH;
+                                }
+                            } else {
+                                direction = NormalDirection.SOUTH_EAST;
+                            }
+                        } else {
+                            if (-dx > dy) {
+                                if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.EAST;
+                                } else if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.SOUTH;
+                                }
+                            } else if (-dx < dy) {
+                                if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.SOUTH;
+                                } else if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.EAST;
+                                }
+                            } else {
+                                if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.SOUTH;
+                                } else if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.EAST;
+                                }
+                            }
+                        }
+                    } else if (eC.under(pC)) {
+                        if (loc.canMove(NormalDirection.NORTH_EAST, entity.getSize(), npcCheck)) {
+                            if (absDY <= 1 && absDY >= 0) {
+                                if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.EAST;
+                                }
+                            } else if (absDX <= 1 && absDX >= 0) {
+                                if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.NORTH;
+                                }
+                            } else {
+                                direction = NormalDirection.NORTH_EAST;
+                            }
+                        } else {
+                            if (-dx > -dy) {
+                                if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.EAST;
+                                } else if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.NORTH;
+                                }
+                            } else if (-dx < -dy) {
+                                if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.NORTH;
+                                } else if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.EAST;
+                                }
+                            } else {
+                                if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.NORTH;
+                                } else if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.EAST;
+                                }
+                            }
+                        }
+                    } else {
+                        if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.EAST;
+                        }
+                    }
+                } else {
+                    if (eC.above(pC)) {
+                        if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.SOUTH;
+                        }
+                    } else if (eC.under(pC)) {
+                        if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.NORTH;
+                        }
+                    }
+                }
+            }
+            if (direction == null) {
+                return null;
+            }
+            return new NextNode(loc, direction, loc.canMove(direction, entity.getSize(), npcCheck));
         } else {
-	        if (dx > 0) {
-	            if (dy > 0) {
-	                if (dx == 1 && dy == 1 && combat) {
-	                    if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
-	                        direction = NormalDirection.WEST;
-	                    } else if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
-	                        direction = NormalDirection.SOUTH;
-	                    } else {
-	                        direction = NormalDirection.WEST; // random w/e
-	                    }
-	                } else {
-	                    if (loc.canMove(NormalDirection.SOUTH_WEST, entity.getSize(), npcCheck)) {
-	                        direction = NormalDirection.SOUTH_WEST;
-	                    } else {
-	                        if (dy > dx) {
-	                            if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
-	                                direction = NormalDirection.WEST;
-	                            } else {
-	                                direction = NormalDirection.SOUTH;
-	                            }
-	                        } else if (dy < dx) {
-	                            if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
-	                                direction = NormalDirection.SOUTH;
-	                            } else {
-	                                direction = NormalDirection.WEST;
-	                            }
-	                        } else {
-	                        	if (loc.canMove(NormalDirection.SOUTH_WEST, entity.getSize(), npcCheck)) {
-	                        		direction = NormalDirection.SOUTH_WEST;
-	                        	} else if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
-	                                direction = NormalDirection.SOUTH;
-	                            } else {
-	                                direction = NormalDirection.WEST;
-	                            }
-	                        }
-	                    }
-	                }
-	            } else if (dy < 0) {
-	                if (dx == 1 && dy == -1 && combat) {
-	                    if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
-	                        direction = NormalDirection.WEST;
-	                    } else if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
-	                        direction = NormalDirection.NORTH;
-	                    } else {
-	                        direction = NormalDirection.WEST; // random w/e
-	                    }
-	                } else {
-	                    if (loc.canMove(NormalDirection.NORTH_WEST, entity.getSize(), npcCheck)) {
-	                        direction = NormalDirection.NORTH_WEST;
-	                    } else {
-	                        if (Math.abs(dy) > Math.abs(dx)) {
-	                            if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
-	                                direction = NormalDirection.WEST;
-	                            } else {
-	                                direction = NormalDirection.NORTH;
-	                            }
-	                        } else if (Math.abs(dy) < Math.abs(dx)) {
-	                            if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
-	                                direction = NormalDirection.NORTH;
-	                            } else {
-	                                direction = NormalDirection.WEST;
-	                            }
-	                        } else {
-	                        	if (loc.canMove(NormalDirection.NORTH_WEST, entity.getSize(), npcCheck)) {
-	                        		direction = NormalDirection.NORTH_WEST;
-	                        	} else if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
-	                                direction = NormalDirection.NORTH;
-	                            } else {
-	                                direction = NormalDirection.WEST;
-	                            }
-	                        }
-	                    }
-	                }
-	            } else {
-	                direction = NormalDirection.WEST;
-	            }
-	        } else if (dx < 0) {
-	            if (dy > 0) {
-	                if (dx == -1 && dy == 1 && combat) {
-	                    if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
-	                        direction = NormalDirection.EAST;
-	                    } else if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
-	                        direction = NormalDirection.SOUTH;
-	                    } else {
-	                        direction = NormalDirection.EAST; // random w/e
-	                    }
-	                } else {
-	                    if (loc.canMove(NormalDirection.SOUTH_EAST, entity.getSize(), npcCheck)) {
-	                        direction = NormalDirection.SOUTH_EAST;
-	                    } else {
-	                        if (Math.abs(dy) > Math.abs(dx)) {
-	                            if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
-	                                direction = NormalDirection.EAST;
-	                            } else if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
-	                                direction = NormalDirection.SOUTH;
-	                            }
-	                        } else if (Math.abs(dy) < Math.abs(dx)) {
-	                            if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
-	                                direction = NormalDirection.SOUTH;
-	                            } else if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
-	                                direction = NormalDirection.EAST;
-	                            }
-	                        } else {
-	                        	if (loc.canMove(NormalDirection.SOUTH_EAST, entity.getSize(), npcCheck)) {
-	                        		direction = NormalDirection.SOUTH_EAST;
-	                        	} else if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
-	                                direction = NormalDirection.SOUTH;
-	                            } else if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
-	                                direction = NormalDirection.EAST;
-	                            }
-	                        }
-	                    }
-	                }
-	            } else if (dy < 0) {
-	                if (dx == -1 && dy == -1 && combat) {
-	                    if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
-	                        direction = NormalDirection.EAST;
-	                    } else if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
-	                        direction = NormalDirection.NORTH;
-	                    } else {
-	                        direction = NormalDirection.EAST; // random w/e
-	                    }
-	                } else {
-	                    if (loc.canMove(NormalDirection.NORTH_EAST, entity.getSize(), npcCheck)) {
-	                        direction = NormalDirection.NORTH_EAST;
-	                    } else {
-	                        if (Math.abs(dy) > Math.abs(dx)) {
-	                            if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
-	                                direction = NormalDirection.EAST;
-	                            } else if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
-	                                direction = NormalDirection.NORTH;
-	                            }
-	                        } else if (Math.abs(dy) < Math.abs(dx)) {
-	                            if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
-	                                direction = NormalDirection.NORTH;
-	                            } else if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
-	                                direction = NormalDirection.EAST;
-	                            }
-	                        } else {
-	                        	if (loc.canMove(NormalDirection.NORTH_EAST, entity.getSize(), npcCheck)) {
-	                        		direction = NormalDirection.NORTH_EAST;
-	                        	} else if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
-	                                direction = NormalDirection.NORTH;
-	                            } else if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
-	                                direction = NormalDirection.EAST;
-	                            }
-	                        }
-	                    }
-	                }
-	            } else {
-	                direction = NormalDirection.EAST;
-	            }
-	        } else {
-	            if (dy > 0) {
-	                direction = NormalDirection.SOUTH;
-	            } else if (dy < 0) {
-	                direction = NormalDirection.NORTH;
-	            } else {
-	                if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
-	                    direction = NormalDirection.WEST;
-	                } else if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
-	                    direction = NormalDirection.EAST;
-	                } else if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
-	                    direction = NormalDirection.NORTH;
-	                } else if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
-	                    direction = NormalDirection.SOUTH;
-	                } else {
-	                    direction = NormalDirection.SOUTH; // random w/e
-	                }
-	
-	            }
-	        }
-	        if (direction == null) {
-	            return null;
-	        }
-	        return new NextNode(loc, direction, loc.canMove(direction, entity.getSize(), npcCheck));
+            if (dx > 0) {
+                if (dy > 0) {
+                    if (dx == 1 && dy == 1 && combat) {
+                        if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.WEST;
+                        } else if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.SOUTH;
+                        } else {
+                            direction = NormalDirection.WEST; // random w/e
+                        }
+                    } else {
+                        if (loc.canMove(NormalDirection.SOUTH_WEST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.SOUTH_WEST;
+                        } else {
+                            if (dy > dx) {
+                                if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.WEST;
+                                } else {
+                                    direction = NormalDirection.SOUTH;
+                                }
+                            } else if (dy < dx) {
+                                if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.SOUTH;
+                                } else {
+                                    direction = NormalDirection.WEST;
+                                }
+                            } else {
+                                if (loc.canMove(NormalDirection.SOUTH_WEST, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.SOUTH_WEST;
+                                } else if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.SOUTH;
+                                } else {
+                                    direction = NormalDirection.WEST;
+                                }
+                            }
+                        }
+                    }
+                } else if (dy < 0) {
+                    if (dx == 1 && dy == -1 && combat) {
+                        if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.WEST;
+                        } else if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.NORTH;
+                        } else {
+                            direction = NormalDirection.WEST; // random w/e
+                        }
+                    } else {
+                        if (loc.canMove(NormalDirection.NORTH_WEST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.NORTH_WEST;
+                        } else {
+                            if (Math.abs(dy) > Math.abs(dx)) {
+                                if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.WEST;
+                                } else {
+                                    direction = NormalDirection.NORTH;
+                                }
+                            } else if (Math.abs(dy) < Math.abs(dx)) {
+                                if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.NORTH;
+                                } else {
+                                    direction = NormalDirection.WEST;
+                                }
+                            } else {
+                                if (loc.canMove(NormalDirection.NORTH_WEST, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.NORTH_WEST;
+                                } else if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.NORTH;
+                                } else {
+                                    direction = NormalDirection.WEST;
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    direction = NormalDirection.WEST;
+                }
+            } else if (dx < 0) {
+                if (dy > 0) {
+                    if (dx == -1 && dy == 1 && combat) {
+                        if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.EAST;
+                        } else if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.SOUTH;
+                        } else {
+                            direction = NormalDirection.EAST; // random w/e
+                        }
+                    } else {
+                        if (loc.canMove(NormalDirection.SOUTH_EAST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.SOUTH_EAST;
+                        } else {
+                            if (Math.abs(dy) > Math.abs(dx)) {
+                                if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.EAST;
+                                } else if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.SOUTH;
+                                }
+                            } else if (Math.abs(dy) < Math.abs(dx)) {
+                                if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.SOUTH;
+                                } else if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.EAST;
+                                }
+                            } else {
+                                if (loc.canMove(NormalDirection.SOUTH_EAST, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.SOUTH_EAST;
+                                } else if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.SOUTH;
+                                } else if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.EAST;
+                                }
+                            }
+                        }
+                    }
+                } else if (dy < 0) {
+                    if (dx == -1 && dy == -1 && combat) {
+                        if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.EAST;
+                        } else if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.NORTH;
+                        } else {
+                            direction = NormalDirection.EAST; // random w/e
+                        }
+                    } else {
+                        if (loc.canMove(NormalDirection.NORTH_EAST, entity.getSize(), npcCheck)) {
+                            direction = NormalDirection.NORTH_EAST;
+                        } else {
+                            if (Math.abs(dy) > Math.abs(dx)) {
+                                if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.EAST;
+                                } else if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.NORTH;
+                                }
+                            } else if (Math.abs(dy) < Math.abs(dx)) {
+                                if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.NORTH;
+                                } else if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.EAST;
+                                }
+                            } else {
+                                if (loc.canMove(NormalDirection.NORTH_EAST, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.NORTH_EAST;
+                                } else if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.NORTH;
+                                } else if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
+                                    direction = NormalDirection.EAST;
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    direction = NormalDirection.EAST;
+                }
+            } else {
+                if (dy > 0) {
+                    direction = NormalDirection.SOUTH;
+                } else if (dy < 0) {
+                    direction = NormalDirection.NORTH;
+                } else {
+                    if (loc.canMove(NormalDirection.WEST, entity.getSize(), npcCheck)) {
+                        direction = NormalDirection.WEST;
+                    } else if (loc.canMove(NormalDirection.EAST, entity.getSize(), npcCheck)) {
+                        direction = NormalDirection.EAST;
+                    } else if (loc.canMove(NormalDirection.NORTH, entity.getSize(), npcCheck)) {
+                        direction = NormalDirection.NORTH;
+                    } else if (loc.canMove(NormalDirection.SOUTH, entity.getSize(), npcCheck)) {
+                        direction = NormalDirection.SOUTH;
+                    } else {
+                        direction = NormalDirection.SOUTH; // random w/e
+                    }
+
+                }
+            }
+            if (direction == null) {
+                return null;
+            }
+            return new NextNode(loc, direction, loc.canMove(direction, entity.getSize(), npcCheck));
         }
     }
 
@@ -609,8 +630,8 @@ public class CombatUtilities {
                     return 1;
             }
         } else {
-        	switch (type) {
-        	case MELEE:
+            switch (type) {
+            case MELEE:
                 return 1;
             case MAGIC:
                 return 8;
@@ -618,7 +639,7 @@ public class CombatUtilities {
                 return 8;
             default:
                 return 1;
-        	}
+            }
         }
     }
 
@@ -864,14 +885,14 @@ public class CombatUtilities {
             }
             return weapon.index;
         }
-        
+
         /**
          * Only to be used by npc's
          * @param weapon
          * @param type
          */
         public static void setType(Weapon weapon, int type) {
-        	weapon.type = type;
+            weapon.type = type;
         }
 
         public static int getAttackBonusForType(Entity entity, int type) {
@@ -997,47 +1018,47 @@ public class CombatUtilities {
             return true;
         return false;
     }
-    
+
     public static boolean clippedProjectile(Entity entity, Entity victim) {
-    	Tile start = entity.getCoverage().center();
-    	Tile end = victim.getCoverage().center();
-    	Tile currentTile = start;    	
-    	NormalDirection globalDirection = null;
-    	NormalDirection localDirection = null;
-    	NormalDirection localDirectionInverse = null;
-    	while (currentTile != end) {    		
-    		globalDirection = Directions.directionFor(currentTile, end);
-    		Tile nextTile = currentTile.translate(Directions.DIRECTION_DELTA_X[globalDirection.intValue()], Directions.DIRECTION_DELTA_Y[globalDirection.intValue()], 0);
-    		localDirection = Directions.directionFor(currentTile, nextTile);	
-    		localDirectionInverse = Directions.directionFor(nextTile, currentTile);
-    		GameObject currentObject = Region.getWallObject(currentTile);
-    		GameObject nextObject = Region.getWallObject(nextTile);
-    		if (currentObject != null) {
-    			if (nextObject != null) {
-					if (!currentTile.canMove(localDirection, 1, false) || !nextTile.canMove(localDirectionInverse, 1, false))
-						break;
-    			} else {
-    				if (!currentTile.canMove(localDirection, 1, false) || !nextTile.canMove(localDirectionInverse, 1, false)) 
-	    				break;
-    			}
-    		} else if (nextObject != null) {
-    			if (!currentTile.canMove(localDirection, 1, false) || !nextTile.canMove(localDirectionInverse, 1, false))
-					break;
-    		}
-    		if (currentTile.canMove(localDirection, 1, false) && currentTile.canMove(localDirectionInverse, 1, false)) {
-    			currentTile = nextTile;
-    			continue;
-    		} else {
-    			boolean solid = (Region.getAbsoluteClipping(nextTile.getX(), nextTile.getY(), nextTile.getZ()) & 0x20000) != 0;
-    			boolean solid2 = (Region.getAbsoluteClipping(currentTile.getX(), currentTile.getY(), currentTile.getZ()) & 0x20000) != 0;
-    			if (!solid && !solid2) {
-    				currentTile = nextTile;
-    				continue;
-    			} else 
-    				break;
-    		}
-    	}  	
-    	return currentTile == end;
+        Tile start = entity.getCoverage().center();
+        Tile end = victim.getCoverage().center();
+        Tile currentTile = start;
+        NormalDirection globalDirection = null;
+        NormalDirection localDirection = null;
+        NormalDirection localDirectionInverse = null;
+        while (currentTile != end) {
+            globalDirection = Directions.directionFor(currentTile, end);
+            Tile nextTile = currentTile.translate(Directions.DIRECTION_DELTA_X[globalDirection.intValue()], Directions.DIRECTION_DELTA_Y[globalDirection.intValue()], 0);
+            localDirection = Directions.directionFor(currentTile, nextTile);
+            localDirectionInverse = Directions.directionFor(nextTile, currentTile);
+            GameObject currentObject = Region.getWallObject(currentTile);
+            GameObject nextObject = Region.getWallObject(nextTile);
+            if (currentObject != null) {
+                if (nextObject != null) {
+                    if (!currentTile.canMove(localDirection, 1, false) || !nextTile.canMove(localDirectionInverse, 1, false))
+                        break;
+                } else {
+                    if (!currentTile.canMove(localDirection, 1, false) || !nextTile.canMove(localDirectionInverse, 1, false))
+                        break;
+                }
+            } else if (nextObject != null) {
+                if (!currentTile.canMove(localDirection, 1, false) || !nextTile.canMove(localDirectionInverse, 1, false))
+                    break;
+            }
+            if (currentTile.canMove(localDirection, 1, false) && currentTile.canMove(localDirectionInverse, 1, false)) {
+                currentTile = nextTile;
+                continue;
+            } else {
+                boolean solid = (Region.getAbsoluteClipping(nextTile.getX(), nextTile.getY(), nextTile.getZ()) & 0x20000) != 0;
+                boolean solid2 = (Region.getAbsoluteClipping(currentTile.getX(), currentTile.getY(), currentTile.getZ()) & 0x20000) != 0;
+                if (!solid && !solid2) {
+                    currentTile = nextTile;
+                    continue;
+                } else
+                    break;
+            }
+        }
+        return currentTile == end;
     }
 
 }

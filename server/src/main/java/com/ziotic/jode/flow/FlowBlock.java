@@ -1,23 +1,27 @@
-/* FlowBlock Copyright (C) 1998-2002 Jochen Hoenicke.
+/*
+ * Copyright (c) 2024 Lazaro Brito
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
- * any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; see the file COPYING.LESSER.  If not, write to
- * the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
- *
- * $Id: FlowBlock.java.in,v 4.5.2.4 2002/05/28 17:34:09 hoenicke Exp $
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
-
 package com.ziotic.jode.flow;
+
+import java.util.*;
 
 import com.ziotic.jode.AssertError;
 import com.ziotic.jode.GlobalOptions;
@@ -27,8 +31,6 @@ import com.ziotic.jode.decompiler.TabbedPrintWriter;
 import com.ziotic.jode.expr.CombineableOperator;
 import com.ziotic.jode.expr.Expression;
 import com.ziotic.jode.util.SimpleMap;
-
-import java.util.*;
 
 /**
  * A flow block is the structure of which the flow graph consists.  A
@@ -249,7 +251,7 @@ public class FlowBlock {
                 if (cb.jump != null) {
                     /* This can only happen if cb also jumps to succ.
                      * This is a weired "if (cond) empty"-block.  We
-                     * transform it by hand.  
+                     * transform it by hand.
                      */
                     prev.removeJump();
                     IfThenElseBlock ifBlock = new IfThenElseBlock(cb.getInstruction().negate());
@@ -604,7 +606,7 @@ public class FlowBlock {
     void updateInOut(FlowBlock successor, SuccessorInfo succInfo) {
         /* First get the gen/kill sets of all jumps to successor and
          * calculate the intersection.
-	 */
+     */
         SlotSet kills = succInfo.kill;
         VariableSet gens = succInfo.gen;
 
@@ -620,7 +622,7 @@ public class FlowBlock {
         SlotSet newIn = (SlotSet) successor.in.clone();
         newIn.removeAll(kills);
 
-        /* The gen/kill sets must be updated for every jump 
+        /* The gen/kill sets must be updated for every jump
          * in the other block */
         Iterator i = successor.successors.values().iterator();
         while (i.hasNext()) {
@@ -669,7 +671,7 @@ public class FlowBlock {
          */
         catchFlow.in.merge(gens);
 
-        /* The gen/kill sets must be updated for every jump 
+        /* The gen/kill sets must be updated for every jump
    * in the other block */
         Iterator i = catchFlow.successors.values().iterator();
         while (i.hasNext()) {
@@ -855,7 +857,7 @@ public class FlowBlock {
      *             block, i.e. not null
      */
     public boolean doT2(FlowBlock succ) {
-        /* check if this successor has only this block as predecessor. 
+        /* check if this successor has only this block as predecessor.
          * if the predecessor is not unique, return false. */
         if (succ.predecessors.size() != 1 || succ.predecessors.get(0) != this)
             return false;
@@ -953,7 +955,7 @@ public class FlowBlock {
 
             if (breakToBlock == null)
                 /* The successor is the dummy return instruction, so
-                 * replace the jump with a return.  
+                 * replace the jump with a return.
                  */
                 prevBlock.appendBlock(new ReturnBlock());
             else
@@ -1199,7 +1201,7 @@ public class FlowBlock {
 
                 /* T1 transformation succeeded.  This may
                  * make another T2 analysis in the previous
-                 * block possible.  
+                 * block possible.
                  */
                 if (addr != 0)
                     return true;
@@ -1304,13 +1306,13 @@ public class FlowBlock {
                     checkConsistent();
 
                     /* note that this info only contains
-		     * the single caseBlock jump */
+             * the single caseBlock jump */
                     SuccessorInfo info = (SuccessorInfo) successors.remove(nextFlow);
 
                     if (nextFlow.predecessors.size() == 2) {
                         SuccessorInfo lastInfo = (SuccessorInfo) lastFlow.successors.remove(nextFlow);
 
-                        /* Do the in/out analysis with all jumps 
+                        /* Do the in/out analysis with all jumps
                          * Note that this won't update lastFlow.in, but
                          * this will not be used anymore.
                          */

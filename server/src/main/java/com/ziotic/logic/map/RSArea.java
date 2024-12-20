@@ -1,3 +1,24 @@
+/*
+ * Copyright (c) 2024 Lazaro Brito
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.ziotic.logic.map;
 
 public class RSArea implements Area {
@@ -23,10 +44,10 @@ public class RSArea implements Area {
             }
         }
         if (include != null) {
-        	for (RSArea area : include) {
-        		if (area.inArea(tile))
-        			return true;
-        	}
+            for (RSArea area : include) {
+                if (area.inArea(tile))
+                    return true;
+            }
         }
         return startX <= tile.getX() && endX >= tile.getX() && tile.getY() >= startY && tile.getY() <= endY;
     }
@@ -63,22 +84,22 @@ public class RSArea implements Area {
             return null;
         }
     }
-    
+
     public RSArea include(RSArea area) {
-    	try {
-    		if (include == null) {
-    			include = new RSArea[1];
-    		} else {
-    			RSArea[] previous = include;
-    			include = new RSArea[include.length + 1];
-    			System.arraycopy(previous, 0, include, 0, include.length - 1);
-    		}
-    		include[include.length - 1] = area;
-    		return this;
-    	} catch (Exception e) {
-    		e.printStackTrace();
-    		return null;
-    	}
+        try {
+            if (include == null) {
+                include = new RSArea[1];
+            } else {
+                RSArea[] previous = include;
+                include = new RSArea[include.length + 1];
+                System.arraycopy(previous, 0, include, 0, include.length - 1);
+            }
+            include[include.length - 1] = area;
+            return this;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private RSArea(int startX, int startY, int endX, int endY) {

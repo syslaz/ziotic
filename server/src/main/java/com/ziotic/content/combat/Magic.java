@@ -1,3 +1,24 @@
+/*
+ * Copyright (c) 2024 Lazaro Brito
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.ziotic.content.combat;
 
 import java.io.IOException;
@@ -7,15 +28,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 
-import org.apache.log4j.Logger;
-
 import com.ziotic.Constants.Equipment;
 import com.ziotic.Static;
 import com.ziotic.content.combat.Combat.ActionType;
 import com.ziotic.content.combat.definitions.SpellDefinition;
 import com.ziotic.content.combat.definitions.SpellDefinition.CombatType;
 import com.ziotic.content.combat.definitions.SpellDefinition.ElementType;
-import com.ziotic.content.combat.definitions.SpellDefinition.GroupType;
 import com.ziotic.content.combat.misc.CombatUtilities;
 import com.ziotic.engine.tick.Tick;
 import com.ziotic.logic.Entity;
@@ -33,6 +51,8 @@ import com.ziotic.logic.player.DisplayMode;
 import com.ziotic.logic.player.Levels;
 import com.ziotic.logic.player.Player;
 import com.ziotic.utility.Logging;
+
+import org.apache.log4j.Logger;
 
 public class Magic {
 
@@ -237,9 +257,9 @@ public class Magic {
                                 removeRunes(player, def);
                                 return true;
                             } else if (def.combatType == CombatType.TELEBLOCK) {
-                            	teleBlock(player, victim, def);
-                            	removeRunes(player, def);
-                            	return true;
+                                teleBlock(player, victim, def);
+                                removeRunes(player, def);
+                                return true;
                             }
                             if ((def.freezeTime != -1 && victim.getCombat().isFrozen() != true && def.name.equalsIgnoreCase("entangle"))
                                     || (def.freezeTime != -1 && !def.name.equalsIgnoreCase("entangle"))
@@ -297,14 +317,14 @@ public class Magic {
 
     public static boolean canCastSpell(Player player, Entity victim, SpellDefinition definition) {
         // TODO CLIPPING OF THE PROJECTILE!
-    	if (definition.combatType != CombatType.VENGEANCE) {
-	    	if (!CombatUtilities.clippedProjectile(player, victim)) {
-	    		if (player.getCombat().isFrozen())
-	    			Static.proto.sendMessage(player, "A magical force stops you from moving.");
-	    		return false;
-	    	}
-    	}
-    	if (!(player.getLevels().getCurrentLevel(Levels.MAGIC) >= definition.requiredLevel)) {
+        if (definition.combatType != CombatType.VENGEANCE) {
+            if (!CombatUtilities.clippedProjectile(player, victim)) {
+                if (player.getCombat().isFrozen())
+                    Static.proto.sendMessage(player, "A magical force stops you from moving.");
+                return false;
+            }
+        }
+        if (!(player.getLevels().getCurrentLevel(Levels.MAGIC) >= definition.requiredLevel)) {
             Static.proto.sendMessage(player, "You need a magic level of " + definition.requiredLevel + " to cast this spell.");
             return false;
         } else if (definition.reqStaff != -1) {
@@ -336,75 +356,75 @@ public class Magic {
             }
         }
     }
-    
+
     public static void teleBlock(final Player player, final Entity victim, SpellDefinition def) {
-    	boolean canCast = false;
-    	if (victim.teleBlocked) {
-    		Tick t = victim.retrieveTick("TeleBlock");
-    		if (t != null) {
-    			if (t.getCounter() <= 25)
-    				canCast = true;
-    		} else {
-    			canCast = true;
-    		}
-    	} else
-    		canCast = true;
-    	if (canCast) {
-    		if (def.startAnim != -1)
+        boolean canCast = false;
+        if (victim.teleBlocked) {
+            Tick t = victim.retrieveTick("TeleBlock");
+            if (t != null) {
+                if (t.getCounter() <= 25)
+                    canCast = true;
+            } else {
+                canCast = true;
+            }
+        } else
+            canCast = true;
+        if (canCast) {
+            if (def.startAnim != -1)
                 player.getCombat().executeAnimation(def.startAnim, def.startAnimDelay, true, false);
             if (def.startGfx != -1)
                 player.doGraphics(def.startGfx, def.startGfxDelay, def.startGfxHeight);
             if (def.projectileId != -1) {
                 Static.world.sendProjectile(player, victim, def.projectileId, player.getLocation(), victim.getLocation(), def.startHeight, def.endHeight, def.projSpeed, def.projDelay, def.middleHeight, 0, 1);
             }
-    		double hitChance = Combat.getAccuracy(player, victim, def.accuracy);
+            double hitChance = Combat.getAccuracy(player, victim, def.accuracy);
 
-    		double distance = player.getLocation().distance(victim.getLocation());
+            double distance = player.getLocation().distance(victim.getLocation());
             double splatDelay = def.projDelay + def.projSpeed + distance * 5;
             if (hitChance >= RANDOM.nextDouble()) {
-            	
-        		int timer = 0;
-        		final boolean isPlayer;
-        		if (victim instanceof Player) {
-        			Player victim_ = (Player) victim;
-        			if (victim_.getPrayerManager().deflectMagic() || victim_.getPrayerManager().protectMagic())
-        				timer = 167;
-        			else
-        				timer = 500;
-        			isPlayer = true;
-        		} else
-        			isPlayer = false;
-            	Tick t = new Tick("SetTeleBlock", 2) {
-        			@Override
-        			public boolean execute() {
-        				victim.teleBlocked = true;
-        				if (isPlayer) {
-        					((Player) victim).sendMessage("You have been teleblocked!");
-        				}
-        				return false;
-        			}
-        		};
-        		Tick t2 = new Tick("TeleBlock", timer) {
-        			@Override
-        			public boolean execute() {
-        				victim.teleBlocked = false;
-        				return false;
-        			}
-        		};
-        		victim.registerTick(t);
-        		victim.registerTick(t2);
-        		
-        		victim.doGraphics(def.endGfx, (int) splatDelay, def.endGfxHeight);
-        		
+
+                int timer = 0;
+                final boolean isPlayer;
+                if (victim instanceof Player) {
+                    Player victim_ = (Player) victim;
+                    if (victim_.getPrayerManager().deflectMagic() || victim_.getPrayerManager().protectMagic())
+                        timer = 167;
+                    else
+                        timer = 500;
+                    isPlayer = true;
+                } else
+                    isPlayer = false;
+                Tick t = new Tick("SetTeleBlock", 2) {
+                    @Override
+                    public boolean execute() {
+                        victim.teleBlocked = true;
+                        if (isPlayer) {
+                            ((Player) victim).sendMessage("You have been teleblocked!");
+                        }
+                        return false;
+                    }
+                };
+                Tick t2 = new Tick("TeleBlock", timer) {
+                    @Override
+                    public boolean execute() {
+                        victim.teleBlocked = false;
+                        return false;
+                    }
+                };
+                victim.registerTick(t);
+                victim.registerTick(t2);
+
+                victim.doGraphics(def.endGfx, (int) splatDelay, def.endGfxHeight);
+
             } else {
-            	victim.doGraphics(85, (int) splatDelay, def.endGfxHeight);
+                victim.doGraphics(85, (int) splatDelay, def.endGfxHeight);
             }
-    		
-    	} else {
-    		if (victim instanceof Player) {
-    			player.sendMessage("Your victim is already teleblocked.");
-    		}
-    	}
+
+        } else {
+            if (victim instanceof Player) {
+                player.sendMessage("Your victim is already teleblocked.");
+            }
+        }
     }
 
     public int doMagicHit(final Entity entity, final Entity victim, SpellDefinition def, double accuracyMultiplier, int[] damages, int[] delays) {
@@ -434,7 +454,7 @@ public class Magic {
                 double hitMultiplier = Combat.getHitMultiplier(hitChance);
                 int damage = maxHit > 0 ? (damages == null ? ((int) (maxHit * hitMultiplier)) : damages[0]) : 0;
                 if (damage > maxHit)
-                	damage = (int) maxHit;
+                    damage = (int) maxHit;
                 int damageExcess = 0;
                 double absorbAmount = 0;
                 if (damage > 200) {
@@ -516,7 +536,7 @@ public class Magic {
                 player.getPrayerManager().dealHit(player, victim_, damage_, WeaponStyles.MAGIC, (int) splatDelay, (int) hpDrainDelay);
                 victim_.getPrayerManager().takeHit(victim_, player, damage_, WeaponStyles.MAGIC, (int) splatDelay, (int) hpDrainDelay);
             } else {
-            	NPC victim_ = (NPC) victim;
+                NPC victim_ = (NPC) victim;
                 hitChance = Combat.getAccuracy(entity, victim, accuracyMultiplier);
                 if (hitChance <= RANDOM.nextDouble()) {
                     maxHit = 0;
@@ -528,7 +548,7 @@ public class Magic {
                 double hitMultiplier = Combat.getHitMultiplier(hitChance);
                 int damage = maxHit > 0 ? (damages == null ? ((int) (maxHit * hitMultiplier)) : damages[0]) : 0;
                 if (damage > maxHit)
-                	damage = (int) maxHit;
+                    damage = (int) maxHit;
                 int damageExcess = 0;
                 double absorbAmount = 0;
                 if (damage > 200) {

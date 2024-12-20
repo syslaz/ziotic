@@ -1,4 +1,29 @@
+/*
+ * Copyright (c) 2024 Lazaro Brito
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.ziotic.content.prayer;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.ziotic.Static;
 import com.ziotic.content.handler.ButtonHandler;
@@ -10,11 +35,8 @@ import com.ziotic.logic.Entity;
 import com.ziotic.logic.item.EquipmentDefinition.WeaponStyles;
 import com.ziotic.logic.player.Player;
 import com.ziotic.utility.Logging;
-import org.apache.log4j.Logger;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.log4j.Logger;
 
 public abstract class PrayerManager implements ButtonHandler {
 
@@ -160,7 +182,7 @@ public abstract class PrayerManager implements ButtonHandler {
     protected boolean turmoil = false;
 
     protected boolean dScimAffected = false;
-    
+
     public abstract void takeHit(Entity owner, Entity enemy, int damage, WeaponStyles type, int splatDelay, int hpDrainDelay);
 
     public abstract void dealHit(Entity owner, Entity enemy, int damage, WeaponStyles type, int splatDelay, int hpDrainDelay);
@@ -206,21 +228,21 @@ public abstract class PrayerManager implements ButtonHandler {
     }
 
     private static void handleSelection(Player player, int prayerId) {
-    	if (!player.getPrayerManager().dScimAffected) {
-	        switch (player.getPrayerManager().book) {
-	            case PRAYER:
-	                Prayer prayer = player.getPrayerManager().prayers.get(prayerId);
-	                handleSwitching(player, prayer);
-	                break;
-	            case ANCIENT_CURSES:
-	                AncientCurse curse = player.getPrayerManager().curses.get(prayerId);
-	                handleSwitching(player, curse);
-	                break;
-	        }
-	        sendButtonConfiguration(player);
-    	} else {
-    		player.sendMessage("You are affected by a dragon scimitar special.");
-    	}
+        if (!player.getPrayerManager().dScimAffected) {
+            switch (player.getPrayerManager().book) {
+                case PRAYER:
+                    Prayer prayer = player.getPrayerManager().prayers.get(prayerId);
+                    handleSwitching(player, prayer);
+                    break;
+                case ANCIENT_CURSES:
+                    AncientCurse curse = player.getPrayerManager().curses.get(prayerId);
+                    handleSwitching(player, curse);
+                    break;
+            }
+            sendButtonConfiguration(player);
+        } else {
+            player.sendMessage("You are affected by a dragon scimitar special.");
+        }
     }
 
     private static void closeQuickSelection(Player player) {
@@ -359,41 +381,41 @@ public abstract class PrayerManager implements ButtonHandler {
     }
 
     private static void turnQuickSelectionOn(Player player) {
-    	if (!player.getPrayerManager().dScimAffected) {
-	        player.getAppearance().setPrayerIcon(-1);
-	        switch (player.getPrayerManager().book) {
-	            case PRAYER:
-	                for (Prayer p : player.getPrayerManager().prayers.values())
-	                    p.switchStatus(player, false);
-	                for (int i = 0; i < player.getPrayerManager().prayers.size(); i++) {
-	                    if (player.getPrayerManager().quickSelectPrayers[i]) {
-	
-	                        handleSwitching(player, player.getPrayerManager().prayers.get(i));
-	                        player.getPrayerManager().quickSelectionOn = true;
-	                    }
-	                }
-	                break;
-	            case ANCIENT_CURSES:
-	                for (AncientCurse c : player.getPrayerManager().curses.values())
-	                    c.switchStatus(player, false);
-	                for (int i = 0; i < player.getPrayerManager().curses.size(); i++) {
-	                    if (player.getPrayerManager().quickSelectCurses[i]) {
-	                        handleSwitching(player, player.getPrayerManager().curses.get(i));
-	                        player.getPrayerManager().quickSelectionOn = true;
-	                    }
-	                }
-	                break;
-	        }
-	        updateAdjustments(player);
-	        sendButtonConfiguration(player);
-	        if (player.getPrayerManager().quickSelectionOn)
-	            Static.proto.sendInterfaceVariable(player, 182, 1);
-	        else
-	            Static.proto.sendMessage(player, "You have not made a quick prayer selection.");
-	        player.getAppearance().refresh();
-    	} else {
-    		player.sendMessage("Your prayer abilities were taken away by a dragon scimitar.");
-    	}
+        if (!player.getPrayerManager().dScimAffected) {
+            player.getAppearance().setPrayerIcon(-1);
+            switch (player.getPrayerManager().book) {
+                case PRAYER:
+                    for (Prayer p : player.getPrayerManager().prayers.values())
+                        p.switchStatus(player, false);
+                    for (int i = 0; i < player.getPrayerManager().prayers.size(); i++) {
+                        if (player.getPrayerManager().quickSelectPrayers[i]) {
+
+                            handleSwitching(player, player.getPrayerManager().prayers.get(i));
+                            player.getPrayerManager().quickSelectionOn = true;
+                        }
+                    }
+                    break;
+                case ANCIENT_CURSES:
+                    for (AncientCurse c : player.getPrayerManager().curses.values())
+                        c.switchStatus(player, false);
+                    for (int i = 0; i < player.getPrayerManager().curses.size(); i++) {
+                        if (player.getPrayerManager().quickSelectCurses[i]) {
+                            handleSwitching(player, player.getPrayerManager().curses.get(i));
+                            player.getPrayerManager().quickSelectionOn = true;
+                        }
+                    }
+                    break;
+            }
+            updateAdjustments(player);
+            sendButtonConfiguration(player);
+            if (player.getPrayerManager().quickSelectionOn)
+                Static.proto.sendInterfaceVariable(player, 182, 1);
+            else
+                Static.proto.sendMessage(player, "You have not made a quick prayer selection.");
+            player.getAppearance().refresh();
+        } else {
+            player.sendMessage("Your prayer abilities were taken away by a dragon scimitar.");
+        }
     }
 
     public static void turnQuickSelectionOff(Player player, boolean reset) {
@@ -413,21 +435,21 @@ public abstract class PrayerManager implements ButtonHandler {
         updateAdjustments(player);
         sendButtonConfiguration(player);
     }
-    
+
     public static void hitByDragonScimitar(Entity entity) {
-    	if (entity instanceof Player) {
-    		final Player player = (Player) entity;
-    		resetPrayers(player);
-    		turnQuickSelectionOff(player, false);
-    		player.getPrayerManager().dScimAffected = true;
-    		player.registerTick(new Tick("DScimEffect", 9) {
-    			@Override
-    			public boolean execute() {
-    				player.getPrayerManager().dScimAffected = false;
-    				return false;
-    			}
-    		});
-    	}
+        if (entity instanceof Player) {
+            final Player player = (Player) entity;
+            resetPrayers(player);
+            turnQuickSelectionOff(player, false);
+            player.getPrayerManager().dScimAffected = true;
+            player.registerTick(new Tick("DScimEffect", 9) {
+                @Override
+                public boolean execute() {
+                    player.getPrayerManager().dScimAffected = false;
+                    return false;
+                }
+            });
+        }
     }
 
     private static void handleSwitching(Player player, AbstractPrayer prayer) {

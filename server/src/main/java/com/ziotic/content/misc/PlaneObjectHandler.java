@@ -1,4 +1,30 @@
+/*
+ * Copyright (c) 2024 Lazaro Brito
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.ziotic.content.misc;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.ziotic.Static;
 import com.ziotic.content.handler.ActionHandler;
@@ -11,12 +37,8 @@ import com.ziotic.logic.player.Player;
 import com.ziotic.logic.utility.DoubleNodeRunnable;
 import com.ziotic.utility.ArrayUtilities;
 import com.ziotic.utility.Logging;
-import org.apache.log4j.Logger;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.log4j.Logger;
 
 /**
  * @author Lazaro
@@ -169,49 +191,49 @@ public class PlaneObjectHandler implements ActionHandler, ObjectOptionHandler {
             player.setTeleportDestination(dest);
         }
     }
-    
+
     private static class OffsetBasedPlaneObjectHandler implements DoubleNodeRunnable<Player, GameObject> {
-    	
-    	private int xLoc;
-    	private int yLoc;
-    	private int zLoc;
-  
-    	private int xOffset;
-    	private int yOffset;
-    	private int zOffset;
-    	
-    	public OffsetBasedPlaneObjectHandler(int xLoc, int yLoc, int zLoc, int xOffset, int yOffset, int zOffset) {
-    		this.xLoc = xLoc;
-    		this.yLoc = yLoc;
-    		this.zLoc = zLoc;
-    		this.xOffset = xOffset;
-    		this.yOffset = yOffset;
-    		this.zOffset = zOffset;
-    	}
-    	
-    	@Override
-    	public void run(Player player, GameObject obj) {
-    		if (obj.getLocation() == Tile.locate(xLoc, yLoc, zLoc))	
-    			player.setTeleportDestination(player.getLocation().translate(xOffset, yOffset, zOffset));
-    	}
+
+        private int xLoc;
+        private int yLoc;
+        private int zLoc;
+
+        private int xOffset;
+        private int yOffset;
+        private int zOffset;
+
+        public OffsetBasedPlaneObjectHandler(int xLoc, int yLoc, int zLoc, int xOffset, int yOffset, int zOffset) {
+            this.xLoc = xLoc;
+            this.yLoc = yLoc;
+            this.zLoc = zLoc;
+            this.xOffset = xOffset;
+            this.yOffset = yOffset;
+            this.zOffset = zOffset;
+        }
+
+        @Override
+        public void run(Player player, GameObject obj) {
+            if (obj.getLocation() == Tile.locate(xLoc, yLoc, zLoc))
+                player.setTeleportDestination(player.getLocation().translate(xOffset, yOffset, zOffset));
+        }
     }
-    
+
     private static class OffsetBasedPlaneObjectHandler2 implements DoubleNodeRunnable<Player, GameObject> {
-  
-    	private int xOffset;
-    	private int yOffset;
-    	private int zOffset;
-    	
-    	public OffsetBasedPlaneObjectHandler2(int xOffset, int yOffset, int zOffset) {
-    		this.xOffset = xOffset;
-    		this.yOffset = yOffset;
-    		this.zOffset = zOffset;
-    	}
-    	
-    	@Override
-    	public void run(Player player, GameObject obj) {
-    		player.setTeleportDestination(player.getLocation().translate(xOffset, yOffset, zOffset));
-    	}
+
+        private int xOffset;
+        private int yOffset;
+        private int zOffset;
+
+        public OffsetBasedPlaneObjectHandler2(int xOffset, int yOffset, int zOffset) {
+            this.xOffset = xOffset;
+            this.yOffset = yOffset;
+            this.zOffset = zOffset;
+        }
+
+        @Override
+        public void run(Player player, GameObject obj) {
+            player.setTeleportDestination(player.getLocation().translate(xOffset, yOffset, zOffset));
+        }
     }
 
     private Map<Integer, DoubleNodeRunnable<Player, GameObject>> objectHandlerMap = new HashMap<Integer, DoubleNodeRunnable<Player, GameObject>>();
@@ -272,20 +294,20 @@ public class PlaneObjectHandler implements ActionHandler, ObjectOptionHandler {
                     handler = new UniquePlaneObjectHandler(Tile.locate(x, y, z));
                     break;
                 case 7:
-                	int xLoc = Integer.parseInt(args[2]);
-                	int yLoc = Integer.parseInt(args[3]);
-                	int zLoc = Integer.parseInt(args[4]);
-                	int xOffset = Integer.parseInt(args[5]);
+                    int xLoc = Integer.parseInt(args[2]);
+                    int yLoc = Integer.parseInt(args[3]);
+                    int zLoc = Integer.parseInt(args[4]);
+                    int xOffset = Integer.parseInt(args[5]);
                     int yOffset = Integer.parseInt(args[6]);
-                    int zOffset = Integer.parseInt(args[7]); 
+                    int zOffset = Integer.parseInt(args[7]);
                     handler = new OffsetBasedPlaneObjectHandler(xLoc, yLoc, zLoc, xOffset, yOffset, zOffset);
                     break;
                 case 8:
-                	xOffset = Integer.parseInt(args[2]);
-                	yOffset = Integer.parseInt(args[3]);
-                	zOffset = Integer.parseInt(args[4]);
-                	handler = new OffsetBasedPlaneObjectHandler2(xOffset, yOffset, zOffset);
-                	break;
+                    xOffset = Integer.parseInt(args[2]);
+                    yOffset = Integer.parseInt(args[3]);
+                    zOffset = Integer.parseInt(args[4]);
+                    handler = new OffsetBasedPlaneObjectHandler2(xOffset, yOffset, zOffset);
+                    break;
             }
 
             if (handler != null) {

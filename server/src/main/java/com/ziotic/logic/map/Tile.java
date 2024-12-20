@@ -1,3 +1,24 @@
+/*
+ * Copyright (c) 2024 Lazaro Brito
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.ziotic.logic.map;
 
 import java.awt.Point;
@@ -84,11 +105,11 @@ public final class Tile {
         }
         if(player.getSize() > 1 && loop) {
             Tile[][] tiles = player.getCoverage().tiles();
-        	for (int x = 0; x < tiles.length; x++) {
-        		for (int y = 0; y < tiles[x].length; y++) {
-        			tiles[x][y].dispatchPlayerEvents(player, false);
-        		}
-        	}
+            for (int x = 0; x < tiles.length; x++) {
+                for (int y = 0; y < tiles[x].length; y++) {
+                    tiles[x][y].dispatchPlayerEvents(player, false);
+                }
+            }
         }
     }
 
@@ -99,14 +120,14 @@ public final class Tile {
             } else if(listener instanceof EntityTileEventListener) {
                 ((EntityTileEventListener) listener).onEntityEvent(npc, this);
             }
-        }        
+        }
         if(npc.getSize() > 1 && loop) {
-        	Tile[][] tiles = npc.getCoverage().tiles();
-        	for (int x = 0; x < tiles.length; x++) {
-        		for (int y = 0; y < tiles[x].length; y++) {
-        			tiles[x][y].dispatchNPCEvents(npc, false);
-        		}
-        	}
+            Tile[][] tiles = npc.getCoverage().tiles();
+            for (int x = 0; x < tiles.length; x++) {
+                for (int y = 0; y < tiles[x].length; y++) {
+                    tiles[x][y].dispatchNPCEvents(npc, false);
+                }
+            }
         }
     }
 
@@ -307,21 +328,21 @@ public final class Tile {
         int dY = y - t.y;
         return dX < distance && dX >= -distance && dY < distance && dY >= -distance;
     }
-    
+
     public boolean right(Tile t) {
-    	return x > t.x;
+        return x > t.x;
     }
-    
+
     public boolean left(Tile t) {
-    	return x < t.x;
+        return x < t.x;
     }
-    
+
     public boolean above(Tile t) {
-    	return y > t.y;
+        return y > t.y;
     }
-    
+
     public boolean under(Tile t) {
-    	return y < t.y;
+        return y < t.y;
     }
 
     /**
@@ -345,119 +366,119 @@ public final class Tile {
     public boolean canMove(NormalDirection dir, int size, boolean npcCheck) {
         switch (dir) {
         case WEST:
-        	for (int k = y; k < y + size; k++) {
-        		if (npcCheck && Tile.locate(x - 1, k, z).containsNPCs())
-        			return false;
-        		if ((Region.getAbsoluteClipping(x - 1, k, z) & 0x42240000) != 0) 
-        			return false;
-        	}
+            for (int k = y; k < y + size; k++) {
+                if (npcCheck && Tile.locate(x - 1, k, z).containsNPCs())
+                    return false;
+                if ((Region.getAbsoluteClipping(x - 1, k, z) & 0x42240000) != 0)
+                    return false;
+            }
             break;
         case EAST:
-        	for (int k = y; k < y + size; k++) {
-        		if (npcCheck && Tile.locate(x + size, k, z).containsNPCs())
-        			return false;
-        		if ((Region.getAbsoluteClipping(x + size, k, z) & 0x60240000) != 0)
-        			return false;
-        	}
-        	break;
+            for (int k = y; k < y + size; k++) {
+                if (npcCheck && Tile.locate(x + size, k, z).containsNPCs())
+                    return false;
+                if ((Region.getAbsoluteClipping(x + size, k, z) & 0x60240000) != 0)
+                    return false;
+            }
+            break;
         case SOUTH:
-        	for (int i = x; i < x + size; i++) {
-        		if (npcCheck && Tile.locate(i, y - 1, z).containsNPCs())
-        			return false;
-        		if ((Region.getAbsoluteClipping(i, y - 1, z) & 0x40a40000) != 0)
-        			return false;
-        	} 
-        	break;
+            for (int i = x; i < x + size; i++) {
+                if (npcCheck && Tile.locate(i, y - 1, z).containsNPCs())
+                    return false;
+                if ((Region.getAbsoluteClipping(i, y - 1, z) & 0x40a40000) != 0)
+                    return false;
+            }
+            break;
         case NORTH:
-        	for (int i = x; i < x + size; i++) {
-        		if (npcCheck && Tile.locate(i, y + size, z).containsNPCs())
-        			return false;
-        		if ((Region.getAbsoluteClipping(i, y + size, z) & 0x48240000) != 0)
-        			return false;
-        	}
-        	break;
+            for (int i = x; i < x + size; i++) {
+                if (npcCheck && Tile.locate(i, y + size, z).containsNPCs())
+                    return false;
+                if ((Region.getAbsoluteClipping(i, y + size, z) & 0x48240000) != 0)
+                    return false;
+            }
+            break;
         case SOUTH_WEST:
-        	for (int i = x; i < x + size; i++) {
-        		int s = Region.getAbsoluteClipping(i, y - 1, z);
-        		int w = Region.getAbsoluteClipping(i - 1, y, z);
-        		int sw = Region.getAbsoluteClipping(i - 1, y - 1, z);
-        		if (npcCheck && Tile.locate(i - 1, y - 1, z).containsNPCs())
-        			return false;
-        		if ((sw & 0x43a40000) != 0 || (s & 0x40a40000) != 0 || (w & 0x42240000) != 0)
-        			return false;
-        	}
-        	for (int k = y; k < y + size; k++) {
-        		int s = Region.getAbsoluteClipping(x, k - 1, z);
-        		int w = Region.getAbsoluteClipping(x - 1, k, z);
-        		int sw = Region.getAbsoluteClipping(x - 1, k - 1, z);
-        		if (npcCheck && Tile.locate(x - 1, k - 1, z).containsNPCs())
-        			return false;
-        		if ((sw & 0x43a40000) != 0 || (s & 0x40a40000) != 0 || (w & 0x42240000) != 0)
-        			return false;
-        	}
-        	break;
+            for (int i = x; i < x + size; i++) {
+                int s = Region.getAbsoluteClipping(i, y - 1, z);
+                int w = Region.getAbsoluteClipping(i - 1, y, z);
+                int sw = Region.getAbsoluteClipping(i - 1, y - 1, z);
+                if (npcCheck && Tile.locate(i - 1, y - 1, z).containsNPCs())
+                    return false;
+                if ((sw & 0x43a40000) != 0 || (s & 0x40a40000) != 0 || (w & 0x42240000) != 0)
+                    return false;
+            }
+            for (int k = y; k < y + size; k++) {
+                int s = Region.getAbsoluteClipping(x, k - 1, z);
+                int w = Region.getAbsoluteClipping(x - 1, k, z);
+                int sw = Region.getAbsoluteClipping(x - 1, k - 1, z);
+                if (npcCheck && Tile.locate(x - 1, k - 1, z).containsNPCs())
+                    return false;
+                if ((sw & 0x43a40000) != 0 || (s & 0x40a40000) != 0 || (w & 0x42240000) != 0)
+                    return false;
+            }
+            break;
         case SOUTH_EAST:
-        	for (int i = x; i < x + size; i++) {
-        		int s = Region.getAbsoluteClipping(i, y - 1, z);
-        		int e = Region.getAbsoluteClipping(i + 1, y, z);
-        		int se = Region.getAbsoluteClipping(i + 1, y - 1, z);
-        		if (npcCheck && Tile.locate(i + 1, y - 1, z).containsNPCs())
-        			return false;
-        		if ((se & 0x60e40000) != 0 || (s & 0x40a40000) != 0 || (e & 0x60240000) != 0)
-        			return false;
-        	}
-        	for (int k = y; k < y + size; k++) {
-        		int s = Region.getAbsoluteClipping(x + size - 1, k - 1, z);
-        		int e = Region.getAbsoluteClipping(x + size, k, z);
-        		int se = Region.getAbsoluteClipping(x + size, k - 1, z);
-        		if (npcCheck && Tile.locate(x + 1, k - 1, z).containsNPCs())
-        			return false;
-        		if ((se & 0x60e40000) != 0 || (s & 0x40a40000) != 0 || (e & 0x60240000) != 0)
-        			return false;
-        	}
-        	break;
+            for (int i = x; i < x + size; i++) {
+                int s = Region.getAbsoluteClipping(i, y - 1, z);
+                int e = Region.getAbsoluteClipping(i + 1, y, z);
+                int se = Region.getAbsoluteClipping(i + 1, y - 1, z);
+                if (npcCheck && Tile.locate(i + 1, y - 1, z).containsNPCs())
+                    return false;
+                if ((se & 0x60e40000) != 0 || (s & 0x40a40000) != 0 || (e & 0x60240000) != 0)
+                    return false;
+            }
+            for (int k = y; k < y + size; k++) {
+                int s = Region.getAbsoluteClipping(x + size - 1, k - 1, z);
+                int e = Region.getAbsoluteClipping(x + size, k, z);
+                int se = Region.getAbsoluteClipping(x + size, k - 1, z);
+                if (npcCheck && Tile.locate(x + 1, k - 1, z).containsNPCs())
+                    return false;
+                if ((se & 0x60e40000) != 0 || (s & 0x40a40000) != 0 || (e & 0x60240000) != 0)
+                    return false;
+            }
+            break;
         case NORTH_WEST:
-        	for (int i = x; i < x + size; i++) {
-        		int n = Region.getAbsoluteClipping(i, y + size, z);
-        		int w = Region.getAbsoluteClipping(i - 1, y + size - 1, z);
-        		int nw = Region.getAbsoluteClipping(i - 1, y + size, z);
-        		if (npcCheck && Tile.locate(i - 1, y + size, z).containsNPCs())
-        			return false;
-        		if ((nw & 0x4e240000) != 0 || (n & 0x48240000) != 0 || (w & 0x42240000) != 0)
-        			return false;
-        	}
-        	for (int k = y; k < y + size; k++) {
-        		int n = Region.getAbsoluteClipping(x, y, z);
-        		int w = Region.getAbsoluteClipping(x - 1, y, z);
-        		int nw = Region.getAbsoluteClipping(x - 1, y + 1, z);
-        		if (npcCheck && Tile.locate(x - 1, k + 1, z).containsNPCs())
-        			return false;
-        		if ((nw & 0x4e240000) != 0 || (n & 0x48240000) != 0 || (w & 0x42240000) != 0)
-        			return false;
-        	}
-        	break;
+            for (int i = x; i < x + size; i++) {
+                int n = Region.getAbsoluteClipping(i, y + size, z);
+                int w = Region.getAbsoluteClipping(i - 1, y + size - 1, z);
+                int nw = Region.getAbsoluteClipping(i - 1, y + size, z);
+                if (npcCheck && Tile.locate(i - 1, y + size, z).containsNPCs())
+                    return false;
+                if ((nw & 0x4e240000) != 0 || (n & 0x48240000) != 0 || (w & 0x42240000) != 0)
+                    return false;
+            }
+            for (int k = y; k < y + size; k++) {
+                int n = Region.getAbsoluteClipping(x, y, z);
+                int w = Region.getAbsoluteClipping(x - 1, y, z);
+                int nw = Region.getAbsoluteClipping(x - 1, y + 1, z);
+                if (npcCheck && Tile.locate(x - 1, k + 1, z).containsNPCs())
+                    return false;
+                if ((nw & 0x4e240000) != 0 || (n & 0x48240000) != 0 || (w & 0x42240000) != 0)
+                    return false;
+            }
+            break;
         case NORTH_EAST:
-        	for (int i = x; i < x + size; i++) {
-        		int n = Region.getAbsoluteClipping(i, y + size, z);
-        		int e = Region.getAbsoluteClipping(i + 1, y + size - 1, z);
-        		int ne = Region.getAbsoluteClipping(i + 1, y + size, z);
-        		if (npcCheck && Tile.locate(i + 1, y + size, z).containsNPCs())
-        			return false;
-        		if ((ne & 0x78240000) != 0 || (n & 0x48240000) != 0 || (e & 0x60240000) != 0) 
-        			return false;
-        	}
-        	for (int k = y; k < y + size; k++) {
-        		int n = Region.getAbsoluteClipping(x + size - 1, k + 1, z);
-        		int e = Region.getAbsoluteClipping(x + size, k, z);
-        		int ne = Region.getAbsoluteClipping(x + size, k + 1, z);
-        		if (npcCheck && Tile.locate(x + size, k + 1, z).containsNPCs())
-        			return false;
-        		if ((ne & 0x78240000) != 0 || (n & 0x48240000) != 0 || (e & 0x60240000) != 0) 
-        			return false;
-        	}
-        	break;
+            for (int i = x; i < x + size; i++) {
+                int n = Region.getAbsoluteClipping(i, y + size, z);
+                int e = Region.getAbsoluteClipping(i + 1, y + size - 1, z);
+                int ne = Region.getAbsoluteClipping(i + 1, y + size, z);
+                if (npcCheck && Tile.locate(i + 1, y + size, z).containsNPCs())
+                    return false;
+                if ((ne & 0x78240000) != 0 || (n & 0x48240000) != 0 || (e & 0x60240000) != 0)
+                    return false;
+            }
+            for (int k = y; k < y + size; k++) {
+                int n = Region.getAbsoluteClipping(x + size - 1, k + 1, z);
+                int e = Region.getAbsoluteClipping(x + size, k, z);
+                int ne = Region.getAbsoluteClipping(x + size, k + 1, z);
+                if (npcCheck && Tile.locate(x + size, k + 1, z).containsNPCs())
+                    return false;
+                if ((ne & 0x78240000) != 0 || (n & 0x48240000) != 0 || (e & 0x60240000) != 0)
+                    return false;
+            }
+            break;
         }
-    	return true;       
+        return true;
     }
 
     public Tile randomize(int maxDelta) {
@@ -481,9 +502,9 @@ public final class Tile {
     }
 
     public int wildernessLevel() {
-    	if (Areas.HIGH_LVL_WILD_STAIRS.inArea(this)) {
-        	return (((y - 9920) / 8) + 1);
-    	}
+        if (Areas.HIGH_LVL_WILD_STAIRS.inArea(this)) {
+            return (((y - 9920) / 8) + 1);
+        }
         if (y > 3524 && y < 4000 && x > 2943 && x <= 3394)
             return (((y - 3520) / 8) + 1);
         return 0;

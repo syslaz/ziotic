@@ -1,31 +1,23 @@
-/***
- * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2007 INRIA, France Telecom
- * All rights reserved.
+/*
+ * Copyright (c) 2024 Lazaro Brito
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the copyright holders nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
- * THE POSSIBILITY OF SUCH DAMAGE.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 package com.ziotic.asm;
 
@@ -1071,11 +1063,11 @@ public class ClassReader {
                      * decoding each element of the stack map table, we look
                      * for 3 consecutive bytes that "look like" an UNINITIALIZED
                      * type (tag 8, offset within code bounds, NEW instruction
-                     * at this offset). We may find false positives (i.e. not 
-                     * real UNINITIALIZED types), but this should be rare, and 
-                     * the only consequence will be the creation of an unneeded 
+                     * at this offset). We may find false positives (i.e. not
+                     * real UNINITIALIZED types), but this should be rare, and
+                     * the only consequence will be the creation of an unneeded
                      * label. This is better than creating a label for each NEW
-                     * instruction, and faster than fully decoding the whole 
+                     * instruction, and faster than fully decoding the whole
                      * stack map table.
                      */
                     for (j = stackMap; j < stackMap + stackMapSize - 2; ++j) {
@@ -1382,7 +1374,7 @@ public class ClassReader {
         int synthetics = Type.getArgumentTypes(desc).length - n;
         AnnotationVisitor av;
         for (i = 0; i < synthetics; ++i) {
-            // virtual annotation to detect synthetic parameters in MethodWriter 
+            // virtual annotation to detect synthetic parameters in MethodWriter
             av = mv.visitParameterAnnotation(i, "Ljava/lang/Synthetic;", false);
             if (av != null) {
                 av.visitEnd();
@@ -1801,7 +1793,7 @@ public class ClassReader {
                     }
                     break;
 
-                case 1:  // byte 2 of 2-byte char or byte 3 of 3-byte char 
+                case 1:  // byte 2 of 2-byte char or byte 3 of 3-byte char
                     buf[strLen++] = (char) ((cc << 6) | (c & 0x3F));
                     st = 0;
                     break;

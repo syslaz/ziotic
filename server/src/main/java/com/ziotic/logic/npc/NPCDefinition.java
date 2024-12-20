@@ -1,4 +1,28 @@
+/*
+ * Copyright (c) 2024 Lazaro Brito
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.ziotic.logic.npc;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import com.ziotic.adapter.protocol.cache.format.NPCDefinitionAdapter;
 import com.ziotic.logic.dialogue.Conversation;
@@ -6,10 +30,8 @@ import com.ziotic.logic.dialogue.Dialogue;
 import com.ziotic.logic.npc.NPCXMLDefinition.AttackType;
 import com.ziotic.logic.npc.NPCXMLDefinition.MeleeStyle;
 import com.ziotic.utility.Logging;
-import org.apache.log4j.Logger;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.log4j.Logger;
 
 /**
  * @author Lazaro
@@ -24,63 +46,63 @@ public final class NPCDefinition {
 
     public static NPCDefinition forId(int id) {
         synchronized (cachedDefinitions) {
-        	try {
-	            NPCDefinition def = cachedDefinitions.get(id);
-	            if (def == null) {
-	                try {
-	                    def = NPCDefinitionAdapter.forId(id);
-	                } catch (Exception e) {
-	                    logger.error("Failed to load NPC definition for id : " + id/*, e*/);
-	                    def = new NPCDefinition();
-	                }
-	
-	                NPCXMLDefinition xmlDef = NPCXMLDefinition.getXMLDefinitions().get(id);
-	                if (xmlDef != null) {
-	                    def.hp = xmlDef.hp;
-	                    def.examine = xmlDef.examine;
-	                    def.aggressive = xmlDef.aggressive;
-	                    def.attackSpeed = xmlDef.attackSpeed;
-	                    def.attackEmote = xmlDef.attackEmote;
-	                    def.defenceEmote = xmlDef.defenceEmote;
-	                    def.deathEmote = xmlDef.deathEmote;
-	                    def.meleeMaxHit = xmlDef.meleeMaxHit;
-	                    def.rangedMaxHit = xmlDef.rangedMaxHit;
-	                    def.magicMaxHit = xmlDef.magicMaxHit;
-	                    def.loopScript = xmlDef.loopScript;
-	                    def.bonuses = xmlDef.bonuses;
-	                    if (def.bonuses == null) {
-	                        def.bonuses = DEFAULT_BONUSES;
-	                    }
-	                    def.levels = xmlDef.levels;
-	                    if (def.levels == null) {
-	                    	def.levels = DEFAULT_LEVELS;
-	                    }
-	                    def.poisonous = xmlDef.poisonous;
-	                    def.attackType = xmlDef.attackType;
-	                    if (def.attackType == null)
-	                    	def.attackType = AttackType.MELEE;
-	                    def.meleeStyle = xmlDef.meleeStyle;
-	                    if (def.meleeStyle == null)
-	                    	def.meleeStyle = MeleeStyle.SLASH;
-	                    def.aggressiveRange = xmlDef.aggressiveRange;
-	                    def.uniqueBehaviour = xmlDef.uniqueBehaviour;
-	                    def.behaviourScript = xmlDef.behaviourScript;
-	                    def.attackable = xmlDef.attackable;
-	                    if (def.behaviourScript == null) {
-	                    	def.behaviourScript = "default";
-	                    }
-	                    if (xmlDef.dialogueScript != null) {
-	                        def.dialogue = Conversation.loadDialogue(xmlDef.dialogueScript);
-	                    }
-	                }
-	
-	                cachedDefinitions.put(id, def);
-	            }
-	            return def;
-        	} catch (Exception e) {
-        		e.printStackTrace();
-        	}
-        	return null;
+            try {
+                NPCDefinition def = cachedDefinitions.get(id);
+                if (def == null) {
+                    try {
+                        def = NPCDefinitionAdapter.forId(id);
+                    } catch (Exception e) {
+                        logger.error("Failed to load NPC definition for id : " + id/*, e*/);
+                        def = new NPCDefinition();
+                    }
+
+                    NPCXMLDefinition xmlDef = NPCXMLDefinition.getXMLDefinitions().get(id);
+                    if (xmlDef != null) {
+                        def.hp = xmlDef.hp;
+                        def.examine = xmlDef.examine;
+                        def.aggressive = xmlDef.aggressive;
+                        def.attackSpeed = xmlDef.attackSpeed;
+                        def.attackEmote = xmlDef.attackEmote;
+                        def.defenceEmote = xmlDef.defenceEmote;
+                        def.deathEmote = xmlDef.deathEmote;
+                        def.meleeMaxHit = xmlDef.meleeMaxHit;
+                        def.rangedMaxHit = xmlDef.rangedMaxHit;
+                        def.magicMaxHit = xmlDef.magicMaxHit;
+                        def.loopScript = xmlDef.loopScript;
+                        def.bonuses = xmlDef.bonuses;
+                        if (def.bonuses == null) {
+                            def.bonuses = DEFAULT_BONUSES;
+                        }
+                        def.levels = xmlDef.levels;
+                        if (def.levels == null) {
+                            def.levels = DEFAULT_LEVELS;
+                        }
+                        def.poisonous = xmlDef.poisonous;
+                        def.attackType = xmlDef.attackType;
+                        if (def.attackType == null)
+                            def.attackType = AttackType.MELEE;
+                        def.meleeStyle = xmlDef.meleeStyle;
+                        if (def.meleeStyle == null)
+                            def.meleeStyle = MeleeStyle.SLASH;
+                        def.aggressiveRange = xmlDef.aggressiveRange;
+                        def.uniqueBehaviour = xmlDef.uniqueBehaviour;
+                        def.behaviourScript = xmlDef.behaviourScript;
+                        def.attackable = xmlDef.attackable;
+                        if (def.behaviourScript == null) {
+                            def.behaviourScript = "default";
+                        }
+                        if (xmlDef.dialogueScript != null) {
+                            def.dialogue = Conversation.loadDialogue(xmlDef.dialogueScript);
+                        }
+                    }
+
+                    cachedDefinitions.put(id, def);
+                }
+                return def;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
         }
     }
 
@@ -163,7 +185,7 @@ public final class NPCDefinition {
     public double[] bonuses = null;
     public int[] levels = null;
     public boolean poisonous = false;
-    
+
     public AttackType attackType = null;
     public MeleeStyle meleeStyle = null;
     public int aggressiveRange = 0;

@@ -1,4 +1,29 @@
+/*
+ * Copyright (c) 2024 Lazaro Brito
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.ziotic.content.skill.fishing;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 import com.ziotic.content.handler.ActionHandlerSystem;
 import com.ziotic.content.handler.NPCOptionHandler;
@@ -8,10 +33,6 @@ import com.ziotic.logic.item.PossesedItem;
 import com.ziotic.logic.npc.NPC;
 import com.ziotic.logic.player.Levels;
 import com.ziotic.logic.player.Player;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
 /**
  * @author 'Mystic Flow
@@ -85,11 +106,11 @@ public class Fishing implements NPCOptionHandler {
             }
             return true;
         }
-        
+
         @Override
         public void onStop() {
-        	player.doAnimation(-1);
-        	player.getMasks().setFaceEntity(-1);
+            player.doAnimation(-1);
+            player.getMasks().setFaceEntity(-1);
         }
 
         private boolean init() {
@@ -156,7 +177,7 @@ public class Fishing implements NPCOptionHandler {
     public void handleNPCOption1(Player player, NPC npc) {
         FishingHarvest harvest = fishingAction(player, npc, 1);
         if (harvest != null && harvest.execute()) {
-        	npc.getPathProcessor().hookEntity(player);
+            npc.getPathProcessor().hookEntity(player);
             player.registerTick(harvest);
         }
     }
@@ -165,7 +186,7 @@ public class Fishing implements NPCOptionHandler {
     public void handleNPCOption2(Player player, NPC npc) {
         FishingHarvest harvest = fishingAction(player, npc, 2);
         if (harvest != null && harvest.execute()) {
-        	npc.getPathProcessor().hookEntity(player);
+            npc.getPathProcessor().hookEntity(player);
             player.registerTick(harvest);
         }
     }

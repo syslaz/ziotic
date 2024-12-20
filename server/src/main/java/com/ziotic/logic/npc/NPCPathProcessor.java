@@ -1,3 +1,24 @@
+/*
+ * Copyright (c) 2024 Lazaro Brito
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.ziotic.logic.npc;
 
 import com.ziotic.logic.map.Directions;
@@ -10,7 +31,7 @@ import com.ziotic.logic.map.Tile;
  */
 public class NPCPathProcessor extends PathProcessor {
     private NPC npc;
-    
+
     public NPCPathProcessor(NPC npc) {
         super(npc);
         this.npc = npc;
@@ -43,7 +64,7 @@ public class NPCPathProcessor extends PathProcessor {
                 /**
                  * Stop walking.
                  */
-            	reset();
+                reset();
                 return null;
             }
             /**
@@ -54,7 +75,7 @@ public class NPCPathProcessor extends PathProcessor {
              * We want to move.
              */
             if (direction != null) {
-            	
+
                 if (!npc.getLocation().canMove(direction, npc.getSize(), false)) {
                     reset();
                     return null;
@@ -70,7 +91,7 @@ public class NPCPathProcessor extends PathProcessor {
                  */
                 int range = npc.getSpawn().range;
                 if (!next.withinRange(npc.getSpawn().location, range) && range != -1) {
-                	npc.getCombat().stop(true);
+                    npc.getCombat().stop(true);
                     return null;
                 }
 
@@ -83,7 +104,7 @@ public class NPCPathProcessor extends PathProcessor {
                 updateHistory(next);
 
                 return direction;
-            } 
+            }
         }
         return null;
     }
@@ -109,7 +130,7 @@ public class NPCPathProcessor extends PathProcessor {
 
             npc.getDirections().setDirection(direction); // Set the final direction.
             npc.getDirections().setSecondDirection(secondDirection);
-        } 
+        }
         npc.setPreviousLocation(oldLocation);
         updateCoordinateFuture();
     }

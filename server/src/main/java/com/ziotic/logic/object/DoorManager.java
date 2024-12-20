@@ -1,4 +1,32 @@
+/*
+ * Copyright (c) 2024 Lazaro Brito
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.ziotic.logic.object;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.ziotic.Constants;
 import com.ziotic.Static;
@@ -13,14 +41,8 @@ import com.ziotic.logic.object.DoorManager.DoorDefinition.SpecificDoorDefinition
 import com.ziotic.logic.player.Player;
 import com.ziotic.utility.ArrayUtilities;
 import com.ziotic.utility.Logging;
-import org.apache.log4j.Logger;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.apache.log4j.Logger;
 
 /**
  * @author Lazaro
@@ -217,7 +239,7 @@ public class DoorManager implements ObjectOptionHandler {
                 Map<Tile, SpecificDoorDefinition> sDefs = null;
                 int dirType = 0;
                 if (args.length > 3) {
-                	lockPick = args[3].equalsIgnoreCase("true");
+                    lockPick = args[3].equalsIgnoreCase("true");
                 }
                 if (args.length > 4) {
                     instantClose = args[4].equalsIgnoreCase("true");
@@ -271,8 +293,8 @@ public class DoorManager implements ObjectOptionHandler {
         system.registerObjectOptionHandler(objectIds, this);
         List<Integer> changedObjectsIds = new ArrayList<Integer>();
         for (DoorDefinition door : doorDefinitionMap.values()) {
-        	if (!door.instantClose)
-        		changedObjectsIds.add(door.getChangedId());
+            if (!door.instantClose)
+                changedObjectsIds.add(door.getChangedId());
         }
         system.registerObjectOptionHandler(ArrayUtilities.primitive(changedObjectsIds.toArray(new Integer[0])), this);
     }
@@ -348,10 +370,10 @@ public class DoorManager implements ObjectOptionHandler {
         }
         logger.warn("Door [id=" + obj.getId() + ", loc=[" + obj.getLocation() + "], dir=" + obj.getDirection() + "]");
         if (door.def.lockPick && !lockPick && door.state == DoorManager.DoorState.CLOSED) {
-        	player.sendMessage("This door is locked.");
-        	return;
+            player.sendMessage("This door is locked.");
+            return;
         }
-        
+
         if (!door.def.isInstantClose()) {
             if (System.currentTimeMillis() - door.lastChange >= Constants.GAME_TICK_INTERVAL) {
                 changeDoor(door, obj);

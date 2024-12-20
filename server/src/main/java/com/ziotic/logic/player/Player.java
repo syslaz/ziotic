@@ -1,3 +1,24 @@
+/*
+ * Copyright (c) 2024 Lazaro Brito
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.ziotic.logic.player;
 
 import java.util.ArrayDeque;
@@ -6,8 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-
-import org.apache.log4j.Logger;
 
 import com.ziotic.Static;
 import com.ziotic.content.cc.Clan;
@@ -49,6 +68,8 @@ import com.ziotic.logic.utility.NodeRunnable;
 import com.ziotic.network.Frame;
 import com.ziotic.utility.Destroyable;
 import com.ziotic.utility.Logging;
+
+import org.apache.log4j.Logger;
 import org.apache.mina.core.session.IoSession;
 
 /**
@@ -103,42 +124,42 @@ public class Player extends Entity implements PlayerType, Destroyable {
             player.getPathProcessor().setMoveSpeed(PathProcessor.MOVE_SPEED_ANY);
         }
     };
-    
+
     @Override
     public void onDeath() {
-		for (Tick t : hpTicks) {
-			t.stop();
-		}
-		final Entity thisEntity = this;
-		Tick tick = retrieveTick("SetHPDelay");
-		int extraDelay = 0;
-		if (tick != null)
-			if (tick.running())
-				extraDelay = tick.getCounter();
-		registerTick(new Tick("death_event1", 1 + extraDelay) {
-			@Override
-			public boolean execute() {
-				NodeRunnable<Entity> death1 = getDeathEvent(1);
-				if (death1 != null) {
-					death1.run(thisEntity);
-				}
-				return false;
-			}
-		});
-		registerTick(new Tick("death_event2", 6 + extraDelay) {
-			@Override
-			public boolean execute() {
-				NodeRunnable<Entity> death2 = getDeathEvent(2);
-				if (death2 != null) {
-					death2.run(thisEntity);
-				}
-				setHP(getMaxHP());
-				masks.setUpdateHPBar(true);
-				dead = false;
-				return false;
-			}
-		});
-		dead = true;
+        for (Tick t : hpTicks) {
+            t.stop();
+        }
+        final Entity thisEntity = this;
+        Tick tick = retrieveTick("SetHPDelay");
+        int extraDelay = 0;
+        if (tick != null)
+            if (tick.running())
+                extraDelay = tick.getCounter();
+        registerTick(new Tick("death_event1", 1 + extraDelay) {
+            @Override
+            public boolean execute() {
+                NodeRunnable<Entity> death1 = getDeathEvent(1);
+                if (death1 != null) {
+                    death1.run(thisEntity);
+                }
+                return false;
+            }
+        });
+        registerTick(new Tick("death_event2", 6 + extraDelay) {
+            @Override
+            public boolean execute() {
+                NodeRunnable<Entity> death2 = getDeathEvent(2);
+                if (death2 != null) {
+                    death2.run(thisEntity);
+                }
+                setHP(getMaxHP());
+                masks.setUpdateHPBar(true);
+                dead = false;
+                return false;
+            }
+        });
+        dead = true;
     }
 
     public static enum Rights {
@@ -178,7 +199,7 @@ public class Player extends Entity implements PlayerType, Destroyable {
     private int timeLoggedIn = -1;
 
     private String name;
-  
+
     private String protocolName;
 
     private String password;

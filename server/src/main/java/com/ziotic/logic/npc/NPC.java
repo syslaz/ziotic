@@ -1,3 +1,24 @@
+/*
+ * Copyright (c) 2024 Lazaro Brito
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.ziotic.logic.npc;
 
 import com.ziotic.Static;
@@ -26,14 +47,14 @@ public class NPC extends Entity implements Destroyable {
     private int conversations = 0;
 
     private int nextLoop = 0;
-    
+
     protected MovementType movementType = MovementType.RANDOM;
     protected AggressionHandler aggressionHandler;
-    
+
     public static enum MovementType {
-    	CONTROLLED,
-    	RANDOM,
-    	OTHER;
+        CONTROLLED,
+        RANDOM,
+        OTHER;
     }
 
     public NPC() {
@@ -49,26 +70,26 @@ public class NPC extends Entity implements Destroyable {
         NPCDefinition def = NPCDefinition.forId(id);
         if (def != null) {
             if (def.aggressive) {
-    	        aggressionHandler = new AggressionHandler(this);
-    	        aggressionHandler.register();
+                aggressionHandler = new AggressionHandler(this);
+                aggressionHandler.register();
             }
-        	hp = def.hp;
-        	if (def.meleeStyle != null) {
-	        	switch (def.meleeStyle) {
-	        	case SLASH:
-	        		CombatUtilities.Styles.setType(combat.weapon, CombatUtilities.Styles.TYPE_SLASH);
-	        		break;
-	        	case STAB:
-	        		CombatUtilities.Styles.setType(combat.weapon, CombatUtilities.Styles.TYPE_STAB);
-	        		break;
-	        	case CRUSH:
-	        		CombatUtilities.Styles.setType(combat.weapon, CombatUtilities.Styles.TYPE_CRUSH);
-	        		break;
-	        	}
-        	} else
-        		CombatUtilities.Styles.setType(combat.weapon, CombatUtilities.Styles.TYPE_SLASH);
+            hp = def.hp;
+            if (def.meleeStyle != null) {
+                switch (def.meleeStyle) {
+                case SLASH:
+                    CombatUtilities.Styles.setType(combat.weapon, CombatUtilities.Styles.TYPE_SLASH);
+                    break;
+                case STAB:
+                    CombatUtilities.Styles.setType(combat.weapon, CombatUtilities.Styles.TYPE_STAB);
+                    break;
+                case CRUSH:
+                    CombatUtilities.Styles.setType(combat.weapon, CombatUtilities.Styles.TYPE_CRUSH);
+                    break;
+                }
+            } else
+                CombatUtilities.Styles.setType(combat.weapon, CombatUtilities.Styles.TYPE_SLASH);
         } else {
-        	CombatUtilities.Styles.setType(combat.weapon, CombatUtilities.Styles.TYPE_SLASH);
+            CombatUtilities.Styles.setType(combat.weapon, CombatUtilities.Styles.TYPE_SLASH);
         }
     }
 
@@ -99,57 +120,57 @@ public class NPC extends Entity implements Destroyable {
     public NPCDefinition getDefinition() {
         return NPCDefinition.forId(id);
     }
-    
+
     @Override
     public void onDeath() {
         if (aggressionHandler != null)
-        	aggressionHandler.destroy();
-    	combat.stop(true);
-    	
-		for (Tick t : hpTicks) {
-			t.stop();
-		}
-		final Entity thisEntity = this;
-		Tick tick = retrieveTick("SetHPDelay");
-		int extraDelay = 0;
-		if (tick != null)
-			if (tick.running())
-				extraDelay = tick.getCounter();
-		registerTick(new Tick("death_event1", 1 + extraDelay) {
-			@Override
-			public boolean execute() {
-				NodeRunnable<Entity> death1 = getDeathEvent(1);
-				if (death1 != null) {
-					death1.run(thisEntity);
-				}
-				return false;
-			}
-		});
-		registerTick(new Tick("death_event2", 4 + extraDelay) {
-			@Override
-			public boolean execute() {
-				NodeRunnable<Entity> death2 = getDeathEvent(2);
-				if (death2 != null) {
-					death2.run(thisEntity);
-				}
-				setHP(getMaxHP());
-				masks.setUpdateHPBar(true);
-				dead = false;
-				return false;
-			}
-		});
+            aggressionHandler.destroy();
+        combat.stop(true);
 
-		dead = true;
+        for (Tick t : hpTicks) {
+            t.stop();
+        }
+        final Entity thisEntity = this;
+        Tick tick = retrieveTick("SetHPDelay");
+        int extraDelay = 0;
+        if (tick != null)
+            if (tick.running())
+                extraDelay = tick.getCounter();
+        registerTick(new Tick("death_event1", 1 + extraDelay) {
+            @Override
+            public boolean execute() {
+                NodeRunnable<Entity> death1 = getDeathEvent(1);
+                if (death1 != null) {
+                    death1.run(thisEntity);
+                }
+                return false;
+            }
+        });
+        registerTick(new Tick("death_event2", 4 + extraDelay) {
+            @Override
+            public boolean execute() {
+                NodeRunnable<Entity> death2 = getDeathEvent(2);
+                if (death2 != null) {
+                    death2.run(thisEntity);
+                }
+                setHP(getMaxHP());
+                masks.setUpdateHPBar(true);
+                dead = false;
+                return false;
+            }
+        });
+
+        dead = true;
     }
-    
+
     public static final NodeRunnable<Entity> DEATH_EVENT_1 = new NodeRunnable<Entity>() {
         @Override
         public void run(Entity entity) {
-        	NPC npc = (NPC) entity;
-        	NPCDefinition def = npc.getDefinition();
-        	int deathAnim = 0;
-        	if (def != null)
-        		deathAnim = def.deathEmote;
+            NPC npc = (NPC) entity;
+            NPCDefinition def = npc.getDefinition();
+            int deathAnim = 0;
+            if (def != null)
+                deathAnim = def.deathEmote;
             entity.getPathProcessor().setMoveSpeed(PathProcessor.MOVE_SPEED_WALK);
             entity.doAnimation(deathAnim);
             entity.getCombat().uponDeath1();
@@ -164,17 +185,17 @@ public class NPC extends Entity implements Destroyable {
             Static.world.unregister(npc);
             npc.getPathProcessor().setMoveSpeed(PathProcessor.MOVE_SPEED_ANY);
             Static.world.addGlobalProcess("RESPAWN_" + entity.getIdentifier(), new Runnable() {
-            	@Override
-            	public void run() {
-            		Static.world.register(new NPC(npc.spawn));
-            	}
+                @Override
+                public void run() {
+                    Static.world.register(new NPC(npc.spawn));
+                }
             }, 100);
             if (npc.combat.lastVictim != null) {
-        		npc.combat.lastVictim.getCombat().stop(false);
-        		if (npc.combat.lastVictim.getLocation().distance(npc.getLocation()) < 16) {
-        			npc.combat.lastVictim.setLocation(npc.combat.lastVictim.getLocation());
-        		}
-        	}
+                npc.combat.lastVictim.getCombat().stop(false);
+                if (npc.combat.lastVictim.getLocation().distance(npc.getLocation()) < 16) {
+                    npc.combat.lastVictim.setLocation(npc.combat.lastVictim.getLocation());
+                }
+            }
         }
     };
 
@@ -223,9 +244,9 @@ public class NPC extends Entity implements Destroyable {
 
     @Override
     public int getMaxHP() {
-    	NPCDefinition def = NPCDefinition.forId(this.id);
-    	if (def != null)
-    		return def.hp;
+        NPCDefinition def = NPCDefinition.forId(this.id);
+        if (def != null)
+            return def.hp;
         return 100;
     }
 
@@ -307,11 +328,11 @@ public class NPC extends Entity implements Destroyable {
         this.getMasks().setSwitchId(id);
     }
 
-	public void setMovementType(MovementType movementType) {
-		this.movementType = movementType;
-	}
+    public void setMovementType(MovementType movementType) {
+        this.movementType = movementType;
+    }
 
-	public MovementType getMovementType() {
-		return movementType;
-	}
+    public MovementType getMovementType() {
+        return movementType;
+    }
 }
