@@ -1,0 +1,8 @@
+bin/
+build/
+.settings/
+.gradle/
+mysql_data/
+*.zip
+.classpath
+.project
