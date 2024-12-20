@@ -1,0 +1,41 @@
+[2011.03.06 21:50:01] Zelix KlassMaster 4.2.4 - License #12014
+                      Single - Standard
+                      voxmobili
+                      15, Rue de Clery Paris France
+[2011.03.06 21:50:01] Preprocessing ZKM Script file "C:\Users\Lazaro\Documents\ziotic\data\zkmscript.txt"
+[2011.03.06 21:50:01] Parsing ZKM Script file "C:\Users\Lazaro\Documents\ziotic\data\zkmscript.txt"
+[2011.03.06 21:50:02] Opening classes...
+API calls detected that may not be handled automatically...
+In class client
+    in method final synchronized void a(int) 
+        java.lang.Class.getDeclaredField(java.lang.String)
+    in method final java.lang.String g(int) 
+        java.lang.Class.getDeclaredField(java.lang.String)
+In class jfa
+    in method private final boolean a(byte, java.lang.Object, java.lang.Class, java.lang.String) 
+        java.lang.Class.getDeclaredField(java.lang.String)
+    in method private final java.lang.Object a(java.lang.Class, int, java.lang.String) 
+        java.lang.Class.getDeclaredField(java.lang.String)
+    in method private final int a(byte, java.lang.Class, java.lang.String, java.lang.Object) 
+        java.lang.Class.getDeclaredField(java.lang.String)
+In class kha
+    in method static final boolean a(int) 
+        java.lang.Class.getDeclaredField(java.lang.String)
+In class kk
+    in method public final void run() 
+        java.lang.Class.getDeclaredField(java.lang.String)
+        java.lang.Class.getDeclaredMethod(java.lang.String, java.lang.Class[])
+In class vu
+    in method static final ha a(byte, int, java.awt.Canvas, d, wu) 
+        java.lang.Class.getDeclaredMethod(java.lang.String, java.lang.Class[])
+In class za
+    in method static final java.lang.Class a(java.lang.String, byte) 
+        java.lang.Class.forName(java.lang.String)
+
+820 classes opened in 2 seconds. 51472K of memory used. 62383K of memory free.
+
+[2011.03.06 21:50:04] Setting exclusions...
+[2011.03.06 21:50:04] Unobfuscating classes...
+[2011.03.06 21:50:05] Saving all classes in "C:\Users\Lazaro\Documents\ziotic\."
+WARNING: File 'C:\Users\Lazaro\Documents\ziotic\.\runescape_out.jar' already exists in 'C:\Users\Lazaro\Documents\ziotic\.'. Renaming to 'C:\Users\Lazaro\Documents\ziotic\.\runescape_out.jar.BACKUP'.
+[2011.03.06 21:50:06] Terminating normally.
