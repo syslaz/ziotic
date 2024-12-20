@@ -1,0 +1,10 @@
+allprojects {
+    repositories {
+        mavenCentral()
+    }
+}
+
+subprojects {
+    group = 'com.ziotic'
+    version = '1.0.0'
+}

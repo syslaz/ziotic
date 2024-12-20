@@ -1,0 +1,30 @@
+open "runescape_out.jar";
+exclude *.client
+	and *.dxVertexLayout
+	and *.Display
+	and *.Sensor
+
+	and c*.
+	and c*.*
+	and c*.* *
+	and c*.* *(*)
+	and j*.
+	and j*.*
+	and j*.* *
+	and j*.* *(*)
+	and n*.
+	and n*.*
+	and n*.* *
+	and n*.* *(*)
+
+
+	and *.oa *(*)
+
+	and *.* nativeid
+        and *.* createToolkit(*)
+        and *.* main(*)
+	and *.* provideLoaderApplet(*)
+	and *.* providesignlink(*);
+
+unobfuscate;
+saveAll archiveCompression=all ".";

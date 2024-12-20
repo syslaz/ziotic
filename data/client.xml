@@ -1,0 +1,22 @@
+<list>
+    <!-- <string>com.ziotic.updater.deob.OPControlFieldFinder</string>
+    <string>com.ziotic.updater.deob.OPRemover</string>
+    <string>com.ziotic.updater.deob.TryCatchRemover</string>
+    <string>com.ziotic.updater.deob.FlowSimplifier</string>
+    <string>com.ziotic.updater.deob.CacheDirectoryChanger</string> -->
+
+    <string>com.ziotic.updater.client.hook.TByteStream</string>
+    <string>com.ziotic.updater.client.hook.TDisplay</string>
+    <string>com.ziotic.updater.client.hook.TSensor</string>
+    <string>com.ziotic.updater.client.hook.TNode</string>
+    <string>com.ziotic.updater.client.hook.TPlayer</string>
+    <string>com.ziotic.updater.client.hook.TEntity</string>
+    <string>com.ziotic.updater.client.hook.TAnimable</string>
+    <string>com.ziotic.updater.client.hook.TInteractable</string>
+    <string>com.ziotic.updater.client.hook.TCamera</string>
+    <string>com.ziotic.updater.client.hook.TClient</string>
+
+    <!-- <string>com.ziotic.updater.ref.ClassNameTransformer</string>
+    <string>com.ziotic.updater.ref.FieldNameTransformer</string>
+    <string>com.ziotic.updater.ref.MethodNameTransformer</string> -->
+</list>
