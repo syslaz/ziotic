@@ -15,7 +15,6 @@ import java.util.Properties;
 public class SQLSession implements Poolable {
   private static boolean loadedDriver = false;
 
-  @SuppressWarnings("unused")
   private Configuration cfg;
   private Connection connection;
 
