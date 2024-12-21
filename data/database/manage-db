@@ -1,0 +1,337 @@
+#!/usr/bin/env bash
+
+# Enable strict mode
+set -euo pipefail
+
+# Global Variables for Database Credentials and Table Prefix
+DB_HOST=""
+DB_USER=""
+DB_PASS=""
+DB_NAME=""
+TABLE_PREFIX=""
+
+# Function to display the main usage information
+usage() {
+	echo "--------------------------------------------"
+	echo "        Database Management Tool"
+	echo "--------------------------------------------"
+	echo "Usage: $0 [OPTIONS]"
+	echo ""
+	echo "Options:"
+	echo "  -h, --host       Database host"
+	echo "  -u, --dbuser     Database user"
+	echo "  -p, --dbpass     Database password (if not provided, will prompt)"
+	echo "  -d, --dbname     Database name"
+	echo "  -t, --prefix     Table prefix (optional, used when initializing)"
+	echo "  -?, --help       Display this help message"
+	echo "--------------------------------------------"
+	exit 1
+}
+
+# Function to parse command-line options
+parse_options() {
+	# Use getopt for parsing long and short options
+	TEMP=$(getopt -o h:u:p:d:t:? --long host:,dbuser:,dbpass:,dbname:,prefix:,help -- "$@")
+	if [ $? != 0 ]; then
+		usage
+	fi
+
+	# Note the quotes around `$TEMP`: they are essential!
+	eval set -- "$TEMP"
+
+	while true; do
+		case "$1" in
+		-h | --host)
+			DB_HOST="$2"
+			shift 2
+			;;
+		-u | --dbuser)
+			DB_USER="$2"
+			shift 2
+			;;
+		-p | --dbpass)
+			DB_PASS="$2"
+			shift 2
+			;;
+		-d | --dbname)
+			DB_NAME="$2"
+			shift 2
+			;;
+		-t | --prefix)
+			TABLE_PREFIX="$2"
+			shift 2
+			;;
+		-\? | --help)
+			usage
+			;;
+		--)
+			shift
+			break
+			;;
+		*)
+			echo "Invalid option: $1"
+			usage
+			;;
+		esac
+	done
+}
+
+# Function to display the main menu
+main_menu() {
+	echo "--------------------------------------------"
+	echo "        Database Management Menu"
+	echo "--------------------------------------------"
+	echo "1) Initialize Database Schema"
+	echo "2) Register a New Player"
+	echo "3) Exit"
+	echo "--------------------------------------------"
+}
+
+# Function to prompt for database credentials
+prompt_db_credentials() {
+	if [[ -z "$DB_HOST" ]]; then
+		read -rp "Enter Database Host: " DB_HOST
+	fi
+	if [[ -z "$DB_USER" ]]; then
+		read -rp "Enter Database User: " DB_USER
+	fi
+	if [[ -z "$DB_PASS" ]]; then
+		read -rsp "Enter Database Password: " DB_PASS
+		echo
+	fi
+	if [[ -z "$DB_NAME" ]]; then
+		read -rp "Enter Database Name: " DB_NAME
+	fi
+}
+
+# Function to prompt for table prefix
+prompt_table_prefix() {
+	if [[ -z "$TABLE_PREFIX" ]]; then
+		read -rp "Enter Table Prefix (leave empty for no prefix): " TABLE_PREFIX
+		# Ensure prefix ends with an underscore if not empty
+		if [[ -n "$TABLE_PREFIX" && ! "$TABLE_PREFIX" =~ _$ ]]; then
+			TABLE_PREFIX="${TABLE_PREFIX}_"
+		fi
+	else
+		# Ensure prefix ends with an underscore if not empty
+		if [[ -n "$TABLE_PREFIX" && ! "$TABLE_PREFIX" =~ _$ ]]; then
+			TABLE_PREFIX="${TABLE_PREFIX}_"
+		fi
+	fi
+}
+
+# Function to initialize the database schema
+initialize_schema() {
+	echo "Initializing database schema with prefix '${TABLE_PREFIX}'..."
+
+	execute_sql "CREATE TABLE IF NOT EXISTS ${TABLE_PREFIX}members (
+    member_id INT PRIMARY KEY AUTO_INCREMENT,
+    members_seo_name VARCHAR(255) NOT NULL,
+    members_pass_hash VARCHAR(255) NOT NULL,
+    members_pass_salt VARCHAR(255) NOT NULL,
+    member_group_id INT NOT NULL,
+    email VARCHAR(255),
+    msg_count_new INT DEFAULT 0
+);"
+
+	execute_sql "CREATE TABLE IF NOT EXISTS ${TABLE_PREFIX}subscription_trans (
+    subtrans_id INT PRIMARY KEY AUTO_INCREMENT,
+    subtrans_member_id INT NOT NULL,
+    subtrans_state VARCHAR(50) NOT NULL,
+    subtrans_end_date BIGINT NOT NULL,
+    FOREIGN KEY (subtrans_member_id) REFERENCES ${TABLE_PREFIX}members(member_id)
+);"
+
+	execute_sql "CREATE TABLE IF NOT EXISTS ${TABLE_PREFIX}playersave (
+    id INT(9) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    lastLoggedIn BIGINT(32) DEFAULT 0 NOT NULL,
+    lastIPs VARCHAR(64) DEFAULT '0.0.0.0;0.0.0.0;0.0.0.0' NOT NULL,
+    x INT(5) DEFAULT -1 NOT NULL,
+    y INT(5) DEFAULT -1 NOT NULL,
+    z INT(5) DEFAULT -1 NOT NULL,
+    runToggled INT(1) DEFAULT 0 NOT NULL,
+    runEnergy INT(3) DEFAULT 100 NOT NULL,
+    inv VARCHAR(512) DEFAULT '-1;-1;-1;-1;-1;-1;-1;-1;-1;-1;-1;-1;-1;-1;-1;-1;-1;-1;-1;-1;-1;-1;-1;-1;-1;-1;-1;-1;-1' NOT NULL,
+    invN VARCHAR(512) DEFAULT '0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0' NOT NULL,
+    equip VARCHAR(256) DEFAULT '-1;-1;-1;-1;-1;-1;-1;-1;-1;-1;-1;-1;-1;-1' NOT NULL,
+    equipN VARCHAR(256) DEFAULT '0;0;0;0;0;0;0;0;0;0;0;0;0;0' NOT NULL,
+    bank LONGTEXT DEFAULT NULL,
+    bankN LONGTEXT DEFAULT NULL,
+    bankT LONGTEXT DEFAULT NULL,
+    level VARCHAR(256) DEFAULT '1;1;1;10;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1' NOT NULL,
+    exp VARCHAR(1024) DEFAULT '0;0;0;1154;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0' NOT NULL,
+    xpCounter INT(11) DEFAULT 0 NOT NULL,
+    autoRetaliate INT(1) DEFAULT 0 NOT NULL,
+    attackStyle INT(1) DEFAULT 0 NOT NULL,
+    prayerBook INT(1) DEFAULT 1 NOT NULL,
+    quickPrayers VARCHAR(256) DEFAULT '0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0' NOT NULL,
+    friends VARCHAR(5120) DEFAULT '' NOT NULL,
+    ignores VARCHAR(5120) DEFAULT '' NOT NULL,
+    pmSetting INT(1) DEFAULT 0 NOT NULL,
+    pmColor INT(2) DEFAULT 0 NOT NULL,
+    lastClan VARCHAR(16) DEFAULT NULL,
+    spellBook INT(3) DEFAULT 193 NOT NULL,
+    looks VARCHAR(28) DEFAULT '310;307;443;599;390;646;438' NOT NULL,
+    colors VARCHAR(20) DEFAULT '6;40;216;4;0' NOT NULL,
+    specialEnergy INT(3) DEFAULT 100 NOT NULL,
+    muted INT(1) DEFAULT 0 NOT NULL,
+    skulled INT(1) DEFAULT 0 NOT NULL,
+    skullTimer INT(4) DEFAULT 0 NOT NULL
+);"
+
+	execute_sql "CREATE TABLE IF NOT EXISTS ${TABLE_PREFIX}clans (
+    owner VARCHAR(255) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    enabled BOOLEAN DEFAULT TRUE,
+    enterReq INT DEFAULT 0,
+    talkReq INT DEFAULT 0,
+    kickReq INT DEFAULT 0,
+    lootShareReq INT DEFAULT 0,
+    recruits TEXT,
+    corporals TEXT,
+    sergeants TEXT,
+    lieutenants TEXT,
+    captains TEXT,
+    generals TEXT
+);"
+}
+
+# Function to execute SQL commands
+execute_sql() {
+	local sql="$1"
+	mariadb -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "$sql"
+}
+
+# Function to hash a password with salt using MD5
+hash_password() {
+	local password="$1"
+	local salt="$2"
+	local salt_hash password_hash combined_hash
+
+	# Generate MD5 hash of the salt
+	salt_hash=$(echo -n "$salt" | md5sum | awk '{print $1}')
+
+	# Generate MD5 hash of the password
+	password_hash=$(echo -n "$password" | md5sum | awk '{print $1}')
+
+	# Concatenate salt_hash and password_hash and generate final MD5 hash
+	combined_hash=$(echo -n "${salt_hash}${password_hash}" | md5sum | awk '{print $1}')
+
+	echo "$combined_hash"
+}
+
+# Function to register a new player
+register_new_player() {
+	echo "Registering a new player..."
+
+	read -rp "Enter Username: " USERNAME
+
+	# Prompt for PASSWORD if not provided
+	read -rsp "Enter Password for user '$USERNAME': " PASSWORD
+	echo
+
+	# Generate a random salt (32 hex characters)
+	SALT=$(openssl rand -hex 16)
+
+	# Hash the password with the generated salt
+	PASSWORD_HASH=$(hash_password "$PASSWORD" "$SALT")
+
+	echo "Registering player '$USERNAME'..."
+
+	execute_sql "INSERT INTO ${TABLE_PREFIX}members (members_seo_name, members_pass_hash, members_pass_salt, member_group_id, email, msg_count_new) VALUES ('$USERNAME', '$PASSWORD_HASH', '$SALT', 1, 'player@example.com', 0);"
+}
+
+# Function to handle initialization
+handle_init() {
+	echo "=== Initialize Database Schema ==="
+
+	# Prompt for table prefix if not set via command-line
+	if [[ -z "$TABLE_PREFIX" ]]; then
+		prompt_table_prefix
+	else
+		# Ensure prefix ends with an underscore if not empty
+		if [[ -n "$TABLE_PREFIX" && ! "$TABLE_PREFIX" =~ _$ ]]; then
+			TABLE_PREFIX="${TABLE_PREFIX}_"
+		fi
+	fi
+
+	# Check if all required arguments are provided
+	if [[ -z "$DB_HOST" || -z "$DB_USER" || -z "$DB_PASS" || -z "$DB_NAME" ]]; then
+		echo "Error: All parameters DB_HOST, DB_USER, DB_PASS, and DB_NAME are required." >&2
+		usage
+		return 1
+	fi
+
+	echo "Attempting to connect to the database..."
+	echo "Host: $DB_HOST"
+	echo "User: $DB_USER"
+	echo "Database: $DB_NAME"
+
+	# Initialize schema and capture status
+	if initialize_schema; then
+		echo "Database schema initialized successfully with prefix '${TABLE_PREFIX}'!"
+	else
+		echo "Error initializing database schema!" >&2
+	fi
+}
+
+# Function to handle player registration
+handle_register() {
+	echo "=== Register a New Player ==="
+
+	# Ensure that the table prefix is set
+	if [[ -z "$TABLE_PREFIX" ]]; then
+		echo "Warning: Table prefix is not set. Proceeding without prefix."
+	fi
+
+	register_new_player
+
+	if [[ $? -eq 0 ]]; then
+		echo "Player '$USERNAME' registered successfully!"
+	else
+		echo "Failed to register player '$USERNAME'!" >&2
+	fi
+}
+
+# Function to load database credentials (prompt if not already set)
+load_db_credentials() {
+	if [[ -z "$DB_HOST" || -z "$DB_USER" || -z "$DB_PASS" || -z "$DB_NAME" ]]; then
+		echo "Database credentials not fully set. Please enter the missing details."
+		prompt_db_credentials
+	fi
+}
+
+# Main script logic
+# Parse command-line options
+parse_options "$@"
+
+# Load database credentials (prompt for any missing)
+load_db_credentials
+
+# Ensure table prefix is handled during initialization
+# If table prefix is set via command-line, ensure it ends with an underscore
+if [[ -n "$TABLE_PREFIX" && ! "$TABLE_PREFIX" =~ _$ ]]; then
+	TABLE_PREFIX="${TABLE_PREFIX}_"
+fi
+
+while true; do
+	main_menu
+	read -rp "Select an option [1-3]: " choice
+	case "$choice" in
+	1)
+		handle_init
+		;;
+	2)
+		handle_register
+		;;
+	3)
+		echo "Exiting. Goodbye!"
+		exit 0
+		;;
+	*)
+		echo "Invalid option. Please select 1, 2, or 3."
+		;;
+	esac
+	echo
+done
