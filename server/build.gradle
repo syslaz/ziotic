@@ -27,6 +27,6 @@ spotless {
     trimTrailingWhitespace()
     indentWithSpaces(4)
     formatAnnotations()
-    licenseHeaderFile('src/main/resources/LICENSE.txt')
+    licenseHeaderFile("src/main/resources/COPYING.txt")
   }
 }
