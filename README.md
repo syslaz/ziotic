@@ -54,14 +54,18 @@ Today, Ziotic has been restructured to use Gradle for easier builds and more mod
 
 - **Link Server:**
 
+  Replace `${DATA_DIR}` with the full path to the data directory.
+
   ```bash
-  gradle :server:run --args "../data -link"
+  gradle :server:run --args "${DATA_DIR} -link"
   ```
 
 - **Game/World Server (with lobby and world handling):**
 
+  Replace `${WORLD_ID}` with the desired world number.
+
   ```bash
-  gradle :server:run --args "../data -game ${WORLD_ID} dual-proto"
+  gradle :server:run --args "${DATA_DIR} -game ${WORLD_ID} dual-proto"
   ```
 
 ## Contributing
